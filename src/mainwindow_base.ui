@@ -1,0 +1,165 @@
+<ui version="4.0" >
+ <class>MainWindow_base</class>
+ <widget class="QWidget" name="MainWindow_base" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>292</width>
+    <height>577</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>kapp4_base</string>
+  </property>
+  <property name="autoFillBackground" >
+   <bool>true</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2" >
+   <item row="1" column="0" >
+    <widget class="KTabWidget" name="tabs" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="MinimumExpanding" hsizetype="Expanding" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="tabPosition" >
+      <enum>QTabWidget::North</enum>
+     </property>
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <property name="elideMode" >
+      <enum>Qt::ElideNone</enum>
+     </property>
+     <widget class="QWidget" name="tabHome" >
+      <attribute name="title" >
+       <string>Home</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3" />
+     </widget>
+     <widget class="QWidget" name="tabReplay" >
+      <attribute name="title" >
+       <string>Replay</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4" >
+       <item row="0" column="0" >
+        <widget class="QFrame" name="frameReplay" >
+         <property name="frameShape" >
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow" >
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_6" />
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="0" column="0" >
+    <layout class="QGridLayout" name="inputLayout" >
+     <item rowspan="2" row="0" column="0" >
+      <widget class="KTextEdit" name="txtNewStatus" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize" >
+        <size>
+         <width>16777215</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="layoutDirection" >
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="documentTitle" >
+        <string/>
+       </property>
+       <property name="acceptRichText" >
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" >
+      <widget class="QLabel" name="lblCounter" >
+       <property name="font" >
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet" >
+        <string notr="true" >color: green;</string>
+       </property>
+       <property name="text" >
+        <string>140</string>
+       </property>
+       <property name="alignment" >
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" >
+      <widget class="KPushButton" name="kpushbutton" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip" >
+        <string>Submit</string>
+       </property>
+       <property name="text" >
+        <string>Submit</string>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="shortcut" >
+        <string>Ctrl+Return</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <customwidgets>
+  <customwidget>
+   <class>KPushButton</class>
+   <extends>QPushButton</extends>
+   <header>kpushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>ktabwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>KTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>ktextedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>txtNewStatus</tabstop>
+  <tabstop>kpushbutton</tabstop>
+  <tabstop>tabs</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

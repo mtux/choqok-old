@@ -1,0 +1,4 @@
+File=kwitter.kcfg
+ClassName=Settings
+Singleton=true
+Mutators=latestStatusId,currentUserId,currentUserScreenName

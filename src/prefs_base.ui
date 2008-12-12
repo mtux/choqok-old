@@ -1,0 +1,197 @@
+<ui version="4.0" >
+ <class>prefs_base</class>
+ <widget class="QWidget" name="prefs_base" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>296</width>
+    <height>144</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QLabel" name="textLabel2_2" >
+     <property name="text" >
+      <string>Direction :</string>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" stdset="0" >
+      <size>
+       <width>41</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="3" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" stdset="0" >
+      <size>
+       <width>41</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="3" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" stdset="0" >
+      <size>
+       <width>41</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="1" colspan="2" >
+    <widget class="QComboBox" name="kcfg_direction" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Maximum" hsizetype="MinimumExpanding" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <item>
+      <property name="text" >
+       <string>Left to Right</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>Right to Left</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>Update interval :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" >
+    <widget class="KIntSpinBox" name="kcfg_updateInterval" >
+     <property name="minimum" >
+      <number>1</number>
+     </property>
+     <property name="value" >
+      <number>10</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2" >
+    <widget class="QLabel" name="label_2" >
+     <property name="text" >
+      <string>Minutes</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" >
+    <widget class="QLabel" name="label_3" >
+     <property name="text" >
+      <string>Notify mode :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" colspan="2" >
+    <widget class="QComboBox" name="kcfg_notifyType" >
+     <item>
+      <property name="text" >
+       <string>None</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>KNotify</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>LibNotify</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="3" column="0" >
+    <widget class="QLabel" name="label_4" >
+     <property name="text" >
+      <string>Notify interval :</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" >
+    <widget class="KIntSpinBox" name="kcfg_notifyInterval" >
+     <property name="minimum" >
+      <number>2</number>
+     </property>
+     <property name="maximum" >
+      <number>30</number>
+     </property>
+     <property name="value" >
+      <number>10</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2" >
+    <widget class="QLabel" name="label_5" >
+     <property name="text" >
+      <string>Seconds</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3" >
+    <spacer name="verticalSpacer" >
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0" >
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <customwidgets>
+  <customwidget>
+   <class>KIntSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>knuminput.h</header>
+  </customwidget>
+ </customwidgets>
+ <includes>
+  <include location="local" >kcolorbutton.h</include>
+ </includes>
+ <resources/>
+ <connections/>
+</ui>
