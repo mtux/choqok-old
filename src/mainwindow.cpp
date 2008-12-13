@@ -19,6 +19,7 @@
 #include <QProcess>
 
 #include "backend.h"
+#include "statustextedit.h"
 
 MainWindow::MainWindow()
 	: KXmlGuiWindow()
@@ -31,6 +32,13 @@ MainWindow::MainWindow()
     // tell the KXmlGuiWindow that this is indeed the main widget
 	mainWidget = new QWidget;
     ui.setupUi(mainWidget);
+	
+	txtNewStatus = new StatusTextEdit(mainWidget);
+	txtNewStatus->setObjectName("txtNewStatus");
+	txtNewStatus->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+	txtNewStatus->setMaximumHeight(70);
+	ui.inputLayout->addWidget(txtNewStatus);
+	
 	setCentralWidget(mainWidget);
     // then, setup our actions
     setupActions();
@@ -39,8 +47,9 @@ MainWindow::MainWindow()
 	
 	
 	setDefaultDirection();
-	ui.txtNewStatus->setTabChangesFocus ( true );
-	connect(ui.txtNewStatus, SIGNAL(textChanged()), this, SLOT(checkNewStatusCharactersCount()));
+	txtNewStatus->setTabChangesFocus ( true );
+	connect(txtNewStatus, SIGNAL(textChanged()), this, SLOT(checkNewStatusCharactersCount()));
+	connect(txtNewStatus, SIGNAL(returnPressed()), this, SLOT(postStatus()));
 	connect(twitter, SIGNAL(sigError(QString&)), this, SLOT(error(QString&)));
 }
 
@@ -88,7 +97,7 @@ void MainWindow::optionsPreferences()
 
 void MainWindow::checkNewStatusCharactersCount()
 {
-	int count = ui.txtNewStatus->toPlainText().count();
+	int count = txtNewStatus->toPlainText().count();
 	int remainChar = 140 - count;
 	if(remainChar < 30){
 		ui.lblCounter->setStyleSheet("QLabel {color: red}");
@@ -163,6 +172,10 @@ void MainWindow::setDefaultDirection()
 void MainWindow::error(QString & errMsg)
 {
 	notify(i18n("Transaction faild"), errMsg);
+}
+
+void MainWindow::postStatus()
+{
 }
 
 #include "mainwindow.moc"

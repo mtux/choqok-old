@@ -14,7 +14,7 @@
 #include "ui_accounts_base.h"
 #include "datacontainers.h"
 class Backend;
-
+class StatusTextEdit;
 /**
  * This class serves as the main window for Kwitter.  It handles the
  * menus, toolbars, and status bars.
@@ -49,6 +49,8 @@ protected slots:
 	
 	void checkNewStatusCharactersCount();
 	
+	void postStatus();
+	
 	void error(QString &errMsg);
 
 private:
@@ -61,7 +63,7 @@ private:
 	Ui::accounts_base ui_accounts_base;
 	QWidget *mainWidget;
 	Backend *twitter;
-	
+	StatusTextEdit *txtNewStatus;
 //     KToggleAction *m_toolbarAction;
 //     KToggleAction *m_statusbarAction;
 };
