@@ -13,6 +13,8 @@
 #include "ui_mainwindow_base.h"
 #include "ui_accounts_base.h"
 #include "datacontainers.h"
+
+#define MAX_STATUS_SIZE 140
 class Backend;
 class StatusTextEdit;
 /**
@@ -44,6 +46,7 @@ protected slots:
 	void updateTimeLines();
 	void homeTimeLinesRecived(QList<Status> &statusList);
 	void replayTimeLineRecived(QList<Status> &statusList);
+	void postingNewStatusRecived(bool isError);
 
 	void notify(const QString &title, const QString &message);
 	
@@ -56,6 +59,7 @@ protected slots:
 private:
     void setupActions();
 	void setDefaultDirection();
+	QString prepareNewStatus();
 
 private:
 	Ui::MainWindow_base ui;

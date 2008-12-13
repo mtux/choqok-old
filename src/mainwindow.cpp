@@ -24,11 +24,13 @@
 MainWindow::MainWindow()
 	: KXmlGuiWindow()
 {
+	kDebug();
     // accept dnd
 //     setAcceptDrops(true);
 	twitter = new Backend;
 	connect(twitter, SIGNAL(homeTimeLineRecived(QList< Status >&)), this, SLOT(homeTimeLinesRecived(QList< Status >&)));
 	connect(twitter, SIGNAL(replayTimeLineRecived(QList< Status >&)), this, SLOT(replayTimeLineRecived(QList< Status >&)));
+	connect(twitter, SIGNAL(sigPostNewStatusDone(bool)), this, SLOT(postingNewStatusRecived(bool)));
     // tell the KXmlGuiWindow that this is indeed the main widget
 	mainWidget = new QWidget;
     ui.setupUi(mainWidget);
@@ -37,6 +39,7 @@ MainWindow::MainWindow()
 	txtNewStatus->setObjectName("txtNewStatus");
 	txtNewStatus->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 	txtNewStatus->setMaximumHeight(70);
+	txtNewStatus->setFocus();
 	ui.inputLayout->addWidget(txtNewStatus);
 	
 	setCentralWidget(mainWidget);
@@ -72,6 +75,7 @@ void MainWindow::setupActions()
 
 void MainWindow::optionsPreferences()
 {
+	kDebug();
     // The preference dialog is derived from prefs_base.ui
     //
     // compare the names of the widgets in the .ui file
@@ -109,12 +113,14 @@ void MainWindow::checkNewStatusCharactersCount()
 
 void MainWindow::settingsChanged()
 {
+	kDebug();
 	twitter->requestCurrentUser();
 	setDefaultDirection();
 }
 
 void MainWindow::notify(const QString &title, const QString &message)
 {
+	kDebug();
 	statusBar()->showMessage(i18n("%1, %2", title, message), Settings::notifyInterval());
 	switch(Settings::notifyType()){
 		case 0:
@@ -176,6 +182,29 @@ void MainWindow::error(QString & errMsg)
 
 void MainWindow::postStatus()
 {
+	kDebug();
+	QString twit = prepareNewStatus();
+	twitter->postNewStatus(twit);
+}
+
+QString MainWindow::prepareNewStatus()
+{
+	kDebug();
+	//TODO will check for urls!
+	QString st = txtNewStatus->toPlainText();
+	if(st.size()>MAX_STATUS_SIZE){
+		QString err = i18n("Status text size is more than server limit size.");
+		error(err);
+		return QString();
+	}
+	return st;
+}
+
+void MainWindow::postingNewStatusRecived(bool isError)
+{
+	if(!isError){
+		txtNewStatus->clear();
+	}
 }
 
 #include "mainwindow.moc"

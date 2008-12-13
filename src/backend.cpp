@@ -20,6 +20,7 @@
 
 Backend::Backend(QObject* parent): QObject(parent)
 {
+	kDebug();
 	urls[HomeTimeLine] = "http://twitter.com/statuses/friends_timeline.xml";
 	urls[ReplayTimeLine] = "http://twitter.com/statuses/replies.xml";
 	urls[UserTimeLine] = "http://twitter.com/statuses/user_timeline.xml";
@@ -44,8 +45,25 @@ Backend::~Backend()
 	logout();
 }
 
-void Backend::postNewStatus(QString & statusMessage)
+void Backend::postNewStatus(QString & statusMessage, uint replayToStatusId)
 {
+	kDebug();
+	QUrl url("http://twitter.com/statuses/update.xml");
+	QHttpRequestHeader header;
+	header.setRequest("POST", url.path());
+	header.setValue("Host", url.host());
+	header.setContentType("application/x-www-form-urlencoded");
+	
+// 	statusHttp = new QHttp(this);
+	connect(&statusHttp, SIGNAL(done(bool)), this, SLOT(postNewStatusDone(bool)));
+ 	statusHttp.setHost(url.host(), url.port(80));
+	statusHttp.setUser(Settings::username(), Settings::password());
+	
+	QByteArray data = "status=";
+	data += QUrl::toPercentEncoding(statusMessage);
+	data += "&source=Yufarsikh";
+	
+	statusHttp.request(header, data);
 }
 
 void Backend::login()
@@ -177,6 +195,7 @@ void Backend::replayTimeLineDone(bool isError)
 
 QString Backend::getErrorString(QHttp * sender)
 {
+	kDebug();
 	QString errType;
 	switch(sender->error()){
 		case QHttp::NoError:
@@ -212,6 +231,7 @@ QString Backend::getErrorString(QHttp * sender)
 
 void Backend::requestCurrentUser()
 {
+	kDebug();
 	QUrl url(urls[UserTimeLine]);
 	QHttp *timelineHttp = new QHttp(this);
 	timelineHttp->setHost(url.host(), url.port(80));
@@ -282,4 +302,15 @@ QDateTime Backend::dateFromString(const QString &date) {
 	sscanf(qPrintable(date), "%*s %s %d %d:%d:%d %*s %d", s, &day, &hours, &minutes, &seconds, &year);
 	int month = monthes[s];
 	return QDateTime(QDate(year, month, day), QTime(hours, minutes, seconds));
+}
+
+void Backend::postNewStatusDone(bool isError)
+{
+	kDebug();
+	if(isError){
+		QString err = getErrorString(qobject_cast<QHttp *>(sender()));
+		emit sigError(err);
+	} else {
+		emit sigPostNewStatusDone(false);
+	}
 }

@@ -38,12 +38,12 @@ public:
 	
 public slots:
 // 	void updateTimeLines(TimeLineType type=All, int page=0);
-	void postNewStatus(QString &statusMessage);
+	void postNewStatus(QString &statusMessage, uint replayToStatusId=0);
 	void requestTimeLine(TimeLineType type, int page=0);
 	void requestCurrentUser();
 	
 signals:
-	void result(bool isDone);
+	void sigPostNewStatusDone(bool isError);
 	void sigError(QString &errorMessage);
 	void homeTimeLineRecived(QList<Status> &statusList);
 	void replayTimeLineRecived(QList<Status> &statusList);
@@ -54,6 +54,7 @@ protected slots:
 	void homeTimeLineDone(bool isError);
 	void replayTimeLineDone(bool isError);
 	void currentUserDone(bool isError);
+	void postNewStatusDone(bool isError);
 	
 private:
 	QString getErrorString(QHttp *sender);
