@@ -35,9 +35,9 @@ public:
     /**
      * Default Destructor
      */
-    virtual ~MainWindow();
+	virtual ~MainWindow();
 
-private slots:
+protected slots:
     void optionsPreferences();
 	void settingsChanged();
 	
@@ -48,6 +48,8 @@ private slots:
 	void notify(const QString &title, const QString &message);
 	
 	void checkNewStatusCharactersCount();
+	
+	void error(QString &errMsg);
 
 private:
     void setupActions();

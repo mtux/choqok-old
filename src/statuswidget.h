@@ -12,7 +12,7 @@
 #ifndef STATUSWIDGET_H
 #define STATUSWIDGET_H
 
-#include <qwidget.h>
+#include <QFrame>
 #include <ui_status_base.h>
 #include "datacontainers.h"
 /**
@@ -20,13 +20,15 @@ Status Widget
 
 	@author Mehrdad Momeny <mehrdad.momeny@gmail.com>
 */
-class StatusWidget : public QWidget, public Ui_StatusBase
+class StatusWidget : public QFrame, public Ui_StatusBase
 {
 Q_OBJECT
 public:
     StatusWidget(QWidget *parent=0);
 
     ~StatusWidget();
+	
+	static QString formatDateTime(const QDateTime &time);
 	
 	Status currentStatus() const;
 	void setCurrentStatus(const Status newStatus);

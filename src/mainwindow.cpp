@@ -41,6 +41,7 @@ MainWindow::MainWindow()
 	setDefaultDirection();
 	ui.txtNewStatus->setTabChangesFocus ( true );
 	connect(ui.txtNewStatus, SIGNAL(textChanged()), this, SLOT(checkNewStatusCharactersCount()));
+	connect(twitter, SIGNAL(sigError(QString&)), this, SLOT(error(QString&)));
 }
 
 MainWindow::~MainWindow()
@@ -105,13 +106,14 @@ void MainWindow::settingsChanged()
 
 void MainWindow::notify(const QString &title, const QString &message)
 {
+	statusBar()->showMessage(i18n("%1, %2", title, message), Settings::notifyInterval());
 	switch(Settings::notifyType()){
 		case 0:
 			break;
 		case 1:
 			break;
 		case 2://Libnotify!
-			QString libnotifyCmd = QString("notify-send -t ") + QString::number((int)Settings::notifyInterval()*1000) + QString(" -u low -i  \"") + title + QString("\" \"") + message + QString("\"");
+			QString libnotifyCmd = QString("notify-send -t ") + QString::number((int)Settings::notifyInterval()*1000) + QString(" -u low -i kwitter \"") + title + QString("\" \"") + message + QString("\"");
 			QProcess::execute(libnotifyCmd);
 			break;
 	}
@@ -139,8 +141,8 @@ void MainWindow::homeTimeLinesRecived(QList< Status > & statusList)
 			QString notifyMessage;
 			StatusWidget *wt = new StatusWidget(this);
 			wt->setCurrentStatus(*it);
-// 			ui.frameHome->layout()->addWidget(wt);
-			ui.tabs->widget(0)->layout()->addWidget(wt);
+			ui.frameHome->layout()->addWidget(wt);
+// 			ui.tabs->widget(0)->layout()->addWidget(wt);
 		}
 	}
 }
@@ -156,6 +158,11 @@ void MainWindow::setDefaultDirection()
 	ui.tabs->widget(1)->setLayoutDirection((Qt::LayoutDirection)Settings::direction());
 // 	txtNewStatus->document()->firstBlock()->
 // 	inputLayout->setLayoutDirection((Qt::LayoutDirection)Settings::direction());
+}
+
+void MainWindow::error(QString & errMsg)
+{
+	notify(i18n("Transaction faild"), errMsg);
 }
 
 #include "mainwindow.moc"

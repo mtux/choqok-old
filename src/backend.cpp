@@ -24,6 +24,18 @@ Backend::Backend(QObject* parent): QObject(parent)
 	urls[ReplayTimeLine] = "http://twitter.com/statuses/replies.xml";
 	urls[UserTimeLine] = "http://twitter.com/statuses/user_timeline.xml";
 	login();
+	monthes["Jan"] = 1;
+	monthes["Feb"] = 2;
+	monthes["Mar"] = 3;
+	monthes["Apr"] = 4;
+	monthes["May"] = 5;
+	monthes["Jun"] = 6;
+	monthes["Jul"] = 7;
+	monthes["Aug"] = 8;
+	monthes["Sep"] = 9;
+	monthes["Oct"] = 10;
+	monthes["Nov"] = 11;
+	monthes["Dec"] = 12;
 }
 
 
@@ -102,7 +114,7 @@ void Backend::homeTimeLineDone(bool isError)
 		return;
 	}
 	QDomNode node = root.firstChild();
-	
+	QString timeStr;
 	while (!node.isNull()) {
 		if (node.toElement().tagName() != "status") {
 			return;
@@ -111,7 +123,7 @@ void Backend::homeTimeLineDone(bool isError)
 		Status status;
 		while (!node2.isNull()) {
 			if(node2.toElement().tagName() == "created_at")
-				status.creationDateTime = node2.toElement().text();
+				timeStr = node2.toElement().text();
 			else if(node2.toElement().tagName() == "text")
 				status.content = node2.toElement().text();
 			else if(node2.toElement().tagName() == "id")
@@ -144,6 +156,8 @@ void Backend::homeTimeLineDone(bool isError)
 			node2 = node2.nextSibling();
 		}
 		node = node.nextSibling();
+		QDateTime time = dateFromString(timeStr);
+		status.creationDateTime = QDateTime(time.date(), time.time(), Qt::UTC);
 		statusList.append(status);
 	}
 	kDebug()<<statusList.count()<<" new Status recived.";
@@ -262,3 +276,10 @@ void Backend::currentUserDone(bool isError)
 	emit currentUserInfo(user);
 }
 
+QDateTime Backend::dateFromString(const QString &date) {
+	char s[10];
+	int year, day, hours, minutes, seconds;
+	sscanf(qPrintable(date), "%*s %s %d %d:%d:%d %*s %d", s, &day, &hours, &minutes, &seconds, &year);
+	int month = monthes[s];
+	return QDateTime(QDate(year, month, day), QTime(hours, minutes, seconds));
+}

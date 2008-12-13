@@ -34,6 +34,8 @@ public:
 	void login();
 	void logout();
 	
+	QDateTime dateFromString(const QString &date);
+	
 public slots:
 // 	void updateTimeLines(TimeLineType type=All, int page=0);
 	void postNewStatus(QString &statusMessage);
@@ -60,6 +62,7 @@ private:
 	QBuffer replayBuffer;
 	QBuffer userIdBuffer;
 	QHttp statusHttp;
+	QMap<QString, int> monthes;
 // 	QHttp timelineHttp;
 };
 

@@ -13,7 +13,7 @@
 #include "settings.h"
 
 StatusWidget::StatusWidget(QWidget *parent)
- : QWidget(parent)
+ : QFrame(parent)
 {
 	setupUi(this);
 	
@@ -54,10 +54,23 @@ void StatusWidget::updateUi()
 	} else {
 		btnRemove->setVisible(false);
 	}
-	QString tw = "<b><a href='http://twitter.com/"+mCurrentStatus.user.screenName+"'>"+mCurrentStatus.user.screenName+"</a> :</b> ";
-	tw+= mCurrentStatus.content;
-	lblStatus->setText(tw);
+	QString sign = "<b><a href='http://twitter.com/"+mCurrentStatus.user.screenName+"'>"+mCurrentStatus.user.screenName+"</a> - </b> ";
+	sign += "<a href='http://twitter.com/" + mCurrentStatus.user.screenName + "/statuses/" + QString::number(mCurrentStatus.statusId) +
+			 "'>" + formatDateTime(mCurrentStatus.creationDateTime) + "</a>";
+	lblSign->setText(sign);
+	lblStatus->setText(mCurrentStatus.content);
 	//TODO: set Image
 }
 
+QString StatusWidget::formatDateTime(const QDateTime &time) {
+	int seconds = time.secsTo(QDateTime::currentDateTime());
+	if (seconds <= 15) return "Just now";
+	if (seconds <= 45) return "about " + QString::number(seconds) + " second" + (seconds == 1 ? "" : "s") + " ago";
+	int minutes = (seconds - 45 + 59) / 60;
+	if (minutes <= 45) return "about " + QString::number(minutes) + " minute" + (minutes == 1 ? "" : "s") + " ago";
+	int hours = (seconds - 45 * 60 + 3599) / 3600;
+	if (hours <= 18) return "about " + QString::number(hours) + " hour" + (hours == 1 ? "" : "s") + " ago";
+	int days = (seconds - 18 * 3600 + 24 * 3600 - 1) / (24 * 3600);
+	return "about " + QString::number(days) + " day" + (days == 1 ? "" : "s") + " ago";
+}
 

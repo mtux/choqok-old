@@ -12,6 +12,7 @@
 
 #ifndef DATACONTAINERS_H
 #define DATACONTAINERS_H
+#include <QDateTime>
 
 struct User{
 public:
@@ -28,7 +29,7 @@ public:
 
 struct Status{
 public:
-	QString creationDateTime;
+	QDateTime creationDateTime;
 	uint statusId;
 	QString content;
 	QString source;
