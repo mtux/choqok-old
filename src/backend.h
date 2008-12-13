@@ -40,7 +40,8 @@ public slots:
 // 	void updateTimeLines(TimeLineType type=All, int page=0);
 	void postNewStatus(QString &statusMessage, uint replyToStatusId=0);
 	void requestTimeLine(TimeLineType type, int page=0);
-	void requestCurrentUser();
+	void abortPostNewStatus();
+// 	void requestCurrentUser();
 	
 signals:
 	void sigPostNewStatusDone(bool isError);
@@ -53,7 +54,6 @@ signals:
 protected slots:
 	void homeTimeLineDone(bool isError);
 	void replyTimeLineDone(bool isError);
-	void currentUserDone(bool isError);
 	void postNewStatusDone(bool isError);
 	
 private:

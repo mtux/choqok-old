@@ -32,12 +32,15 @@ public:
 	
 	Status currentStatus() const;
 	void setCurrentStatus(const Status newStatus);
+	void setUserImage(const QString &imgPath);
+	
 signals:
-	void sigReply(QString &userName);
+	void sigReply(QString &userName, uint statusId);
 	
 protected slots:
 	void remove();
 	void setFavorite(bool isFavorite);
+	void requestReplay();
 	
 private:
 	void updateUi();

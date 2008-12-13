@@ -30,6 +30,9 @@
     <entry name="saveStatusCount" type="Int">
 	    <default>10</default>
     </entry>
+    <entry name="loadTimeLineOnStart" type="Bool">
+	    <default>true</default>
+    </entry>
   </group>
   <group name="Account">
     <entry name="username" type="String">
@@ -37,11 +40,6 @@
     </entry>
     <entry name="password" type="Password">
 	    <label>Password</label>
-    </entry>
-    <entry name="currentUserId" type="UInt">
-	    <default>0</default>
-    </entry>
-    <entry name="currentUserScreenName" type="String">
     </entry>
     <entry name="direction" type="Enum">
 	    <label>Direction</label>

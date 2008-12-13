@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>310</width>
-    <height>127</height>
+    <height>155</height>
    </rect>
   </property>
   <layout class="QGridLayout" >
@@ -96,6 +96,16 @@
     <widget class="QCheckBox" name="kcfg_isSaveStatus" >
      <property name="text" >
       <string>Save statuses on exit :</string>
+     </property>
+     <property name="checked" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="3" >
+    <widget class="QCheckBox" name="kcfg_loadTimeLineOnStart" >
+     <property name="text" >
+      <string>Load all timelines on start</string>
      </property>
      <property name="checked" >
       <bool>true</bool>

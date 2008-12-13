@@ -13,7 +13,7 @@ kde4_add_kcfg_files(kwitter_SRCS settings.kcfgc )
 
 kde4_add_executable(kwitter ${kwitter_SRCS})
 
-target_link_libraries(kwitter ${KDE4_KDEUI_LIBS})
+target_link_libraries(kwitter ${KDE4_KDEUI_LIBS} ${KDE4_KIO_LIBS})
 
 install(TARGETS kwitter DESTINATION ${BIN_INSTALL_DIR} )
 

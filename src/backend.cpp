@@ -53,7 +53,6 @@ void Backend::postNewStatus(QString & statusMessage, uint replyToStatusId)
 	header.setValue("Host", url.host());
 	header.setContentType("application/x-www-form-urlencoded");
 	
-// 	statusHttp = new QHttp(this);
 	connect(&statusHttp, SIGNAL(done(bool)), this, SLOT(postNewStatusDone(bool)));
  	statusHttp.setHost(url.host(), url.port(80));
 	statusHttp.setUser(Settings::username(), Settings::password());
@@ -124,7 +123,7 @@ void Backend::homeTimeLineDone(bool isError)
 	if(ptr)
 		emit homeTimeLineRecived(*ptr);
 	else
-		kDebug()<<"Null returned from homeTimeLineRecived()";
+		kDebug()<<"Null returned from Backend::readTimeLineFromXml()";
 }
 
 void Backend::replyTimeLineDone(bool isError)
@@ -182,73 +181,6 @@ QString Backend::getErrorString(QHttp * sender)
 	return errType;
 }
 
-void Backend::requestCurrentUser()
-{
-	kDebug();
-	QUrl url(urls[UserTimeLine]);
-	QHttp *timelineHttp = new QHttp(this);
-	timelineHttp->setHost(url.host(), url.port(80));
-	timelineHttp->setUser(Settings::username(), Settings::password());
-	connect(timelineHttp, SIGNAL(done( bool )), this, SLOT(currentUserDone(bool)));
-	userIdBuffer.open(QIODevice::WriteOnly);
-	timelineHttp->get(url.path() + "?count=1", &userIdBuffer);
-
-}
-
-void Backend::currentUserDone(bool isError)
-{
-	kDebug()<<isError;
-	if(isError){
-		QString errMsg = getErrorString(qobject_cast<QHttp *>(sender()));
-		kDebug()<<errMsg;
-		emit sigError(errMsg);
-		return;
-	}
-	
-// 	homeBuffer.close();
-	
-	QDomDocument document;
-	
-	document.setContent(userIdBuffer.data());
-	
-	userIdBuffer.close();
-	QDomElement root = document.documentElement();
-	
-	if (root.tagName() != "statuses") {
-		return;
-	}
-	QDomNode node = root.firstChild();
-	
-	User user;
-	
-	while (!node.isNull()) {
-		if (node.toElement().tagName() != "status") {
-			return;
-		}
-		QDomNode node2 = node.firstChild();
-		while (!node2.isNull()) {
-			if(node2.toElement().tagName() == "user"){
-				QDomNode node3 = node2.firstChild();
-				while (!node3.isNull()) {
-					if (node3.toElement().tagName() == "screen_name") {
-						user.screenName = node3.toElement().text();
-					} else if (node3.toElement().tagName() == "profile_image_url") {
-						user.profileImageUrl = node3.toElement().text();
-					} else if (node3.toElement().tagName() == "id") {
-						user.userId = node3.toElement().text().toUInt();
-					}
-					node3 = node3.nextSibling();
-				}
-			}
-			node2 = node2.nextSibling();
-		}
-		node = node.nextSibling();
-	}
-	Settings::setCurrentUserId(user.userId);
-	Settings::setCurrentUserScreenName(user.screenName);
-	emit currentUserInfo(user);
-}
-
 QDateTime Backend::dateFromString(const QString &date)
 {
 	char s[10];
@@ -272,6 +204,7 @@ void Backend::postNewStatusDone(bool isError)
 
 QList<Status> * Backend::readTimeLineFromXml(QByteArray & buffer)
 {
+	kDebug();
 	QDomDocument document;
 	QList<Status> *statusList = new QList<Status>;
 	
@@ -281,6 +214,7 @@ QList<Status> * Backend::readTimeLineFromXml(QByteArray & buffer)
 	
 	if (root.tagName() != "statuses") {
 		QString err = i18n("Data returned from server corrupted!");
+		kDebug()<<"there no statuses tag in XML";
 		emit sigError(err);
 		return 0;
 	}
@@ -288,7 +222,7 @@ QList<Status> * Backend::readTimeLineFromXml(QByteArray & buffer)
 		QString timeStr;
 		while (!node.isNull()) {
 			if (node.toElement().tagName() != "status") {
-				kDebug();
+				kDebug()<<"there no status tag in XML";
 				return statusList;
 			}
 				QDomNode node2 = node.firstChild();
@@ -333,5 +267,10 @@ QList<Status> * Backend::readTimeLineFromXml(QByteArray & buffer)
 				statusList->append(status);
 			}
 	return statusList;
+}
+
+void Backend::abortPostNewStatus()
+{
+	statusHttp.abort();
 }
 

@@ -18,8 +18,11 @@
 
 #include <QProcess>
 #include <QTimer>
+#include <QKeyEvent>
+
 #include "backend.h"
 #include "statustextedit.h"
+#include "mediamanagement.h"
 
 MainWindow::MainWindow()
 	: KXmlGuiWindow()
@@ -32,7 +35,7 @@ MainWindow::MainWindow()
 	twitter = new Backend;
 	connect(twitter, SIGNAL(homeTimeLineRecived(QList< Status >&)), this, SLOT(homeTimeLinesRecived(QList< Status >&)));
 	connect(twitter, SIGNAL(replyTimeLineRecived(QList< Status >&)), this, SLOT(replyTimeLineRecived(QList< Status >&)));
-	connect(twitter, SIGNAL(sigPostNewStatusDone(bool)), this, SLOT(postingNewStatusRecived(bool)));
+	connect(twitter, SIGNAL(sigPostNewStatusDone(bool)), this, SLOT(postingNewStatusDone(bool)));
     // tell the KXmlGuiWindow that this is indeed the main widget
 	mainWidget = new QWidget;
     ui.setupUi(mainWidget);
@@ -53,14 +56,19 @@ MainWindow::MainWindow()
 	
 	setDefaultDirection();
 	
-	updateTimeLines();
+	if(Settings::loadTimeLineOnStart())
+		updateTimeLines();
 	timelineTimer = new QTimer(this);
 	timelineTimer->setInterval(Settings::updateInterval()*60000);
 	timelineTimer->start();
+	
+	mediaMan = new MediaManagement(this);
+	
 	connect(timelineTimer, SIGNAL(timeout()), this, SLOT(updateTimeLines()));
 	connect(txtNewStatus, SIGNAL(textChanged()), this, SLOT(checkNewStatusCharactersCount()));
 	connect(txtNewStatus, SIGNAL(returnPressed()), this, SLOT(postStatus()));
 	connect(twitter, SIGNAL(sigError(QString&)), this, SLOT(error(QString&)));
+	connect(this, SIGNAL(sigSetUserImage(StatusWidget*)), this, SLOT(setUserImage(StatusWidget*)));
 }
 
 MainWindow::~MainWindow()
@@ -129,7 +137,7 @@ void MainWindow::checkNewStatusCharactersCount()
 void MainWindow::settingsChanged()
 {
 	kDebug();
-	twitter->requestCurrentUser();
+// 	twitter->requestCurrentUser();
 	setDefaultDirection();
 	timelineTimer->setInterval(Settings::updateInterval()*60000);
 }
@@ -173,15 +181,17 @@ void MainWindow::homeTimeLinesRecived(QList< Status > & statusList)
 	QList<Status>::const_iterator it = statusList.constBegin();
 	QList<Status>::const_iterator endIt = statusList.constEnd();
 	for(;it!=endIt; ++it){
-		if( it->statusId > Settings::latestStatusId()){
+// 		if( it->statusId > Settings::latestStatusId()){
 // 			kDebug()<<"StatusId: "<<it->statusId<<"UserId: "<<it->user.userId;
 			notify(it->user.screenName, it->content, "userImageAddress");
 			StatusWidget *wt = new StatusWidget(this);
 			wt->setCurrentStatus(*it);
+			emit sigSetUserImage(wt);
+			connect(wt, SIGNAL(sigReply(QString&, uint)), this, SLOT(prepareReply(QString&, uint)));
 			listHomeStatus.append(wt);
 			ui.frameHome->layout()->addWidget(wt);
 // 			ui.tabs->widget(0)->layout()->addWidget(wt);
-		}
+// 		}
 	}
 	uint latestId = statusList.first().statusId;
 	if(latestId > Settings::latestStatusId()){
@@ -199,18 +209,20 @@ void MainWindow::replyTimeLineRecived(QList< Status > & statusList)
 		statusBar()->showMessage(i18n("No new twits received, The list is up to date."), TIMEOUT);
 		return;
 	}
+	
 	QList<Status>::const_iterator it = statusList.constBegin();
 	QList<Status>::const_iterator endIt = statusList.constEnd();
+	
 	for(;it!=endIt; ++it){
-		if( it->statusId > Settings::latestStatusId()){
-// 			kDebug()<<"StatusId: "<<it->statusId<<"UserId: "<<it->user.userId;
+// 		if( it->statusId > Settings::latestStatusId()){
 			notify(it->user.screenName, it->content, "userImageAddress");
 			StatusWidget *wt = new StatusWidget(this);
 			wt->setCurrentStatus(*it);
+			emit sigSetUserImage(wt);
+			connect(wt, SIGNAL(sigReply(QString&, uint)), this, SLOT(prepareReply(QString&, uint)));
 			listReplyStatus.append(wt);
 			ui.frameReply->layout()->addWidget(wt);
-// 			ui.tabs->widget(0)->layout()->addWidget(wt);
-		}
+// 		}
 	}
 	uint latestId = statusList.first().statusId;
 	if(latestId > Settings::latestStatusId()){
@@ -226,17 +238,7 @@ void MainWindow::setDefaultDirection()
 	ui.tabs->widget(1)->setLayoutDirection((Qt::LayoutDirection)Settings::direction());
 // 	txtNewStatus->document()->firstBlock()->
 // 	inputLayout->setLayoutDirection((Qt::LayoutDirection)Settings::direction());
-	QTextCursor c = txtNewStatus->textCursor();
-	QTextBlockFormat f = c.blockFormat();
-		
-	if (Settings::direction() == Qt::RightToLeft) {
-		f.setLayoutDirection(Qt::RightToLeft);	
-	} else {
-		f.setLayoutDirection(Qt::LeftToRight);
-	}
-	c.setBlockFormat(f);
-	txtNewStatus->setTextCursor(c);
-	txtNewStatus->setFocus(Qt::OtherFocusReason);
+	
 }
 
 void MainWindow::error(QString & errMsg)
@@ -266,13 +268,14 @@ QString MainWindow::prepareNewStatus()
 	return st;
 }
 
-void MainWindow::postingNewStatusRecived(bool isError)
+void MainWindow::postingNewStatusDone(bool isError)
 {
 	if(!isError){
 		txtNewStatus->setText(QString());
 		notify("Success!", "New status posted");
 	}
 	txtNewStatus->setEnabled(true);
+	setTxtNewStatusDirection();
 }
 
 bool MainWindow::saveStatuses(int count)
@@ -284,6 +287,46 @@ bool MainWindow::saveStatuses(int count)
 		
 	}
 	return false;///When implement this function remove this!
+}
+
+void MainWindow::setUserImage(StatusWidget * widget)
+{
+	widget->setUserImage(mediaMan->getImageLocalPath(widget->currentStatus().user.screenName, widget->currentStatus().user.profileImageUrl, this));
+}
+
+void MainWindow::prepareReply(QString &userName, uint statusId)
+{
+	kDebug();
+	QString current = txtNewStatus->toPlainText();
+	txtNewStatus->setText("@"+userName + " " + current);
+	replyToStatusId = statusId;
+	setTxtNewStatusDirection();
+}
+
+void MainWindow::setTxtNewStatusDirection()
+{
+	QTextCursor c = txtNewStatus->textCursor();
+	QTextBlockFormat f = c.blockFormat();
+		
+	if (Settings::direction() == Qt::RightToLeft) {
+		f.setLayoutDirection(Qt::RightToLeft);	
+	} else {
+		f.setLayoutDirection(Qt::LeftToRight);
+	}
+	c.setBlockFormat(f);
+	txtNewStatus->setTextCursor(c);
+	txtNewStatus->setFocus(Qt::OtherFocusReason);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent * e)
+{
+	if(e->key() == Qt::Key_Escape){
+		if(txtNewStatus->isEnabled()){
+// 			this->close();
+		} else {
+			twitter->abortPostNewStatus();
+		}
+	}
 }
 
 #include "mainwindow.moc"

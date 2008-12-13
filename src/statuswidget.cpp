@@ -20,6 +20,8 @@ StatusWidget::StatusWidget(QWidget *parent)
 	btnFavorite->setIcon(KIcon("rating"));
 	btnReply->setIcon(KIcon("edit-undo"));
 	btnRemove->setIcon(KIcon("edit-delete"));
+	
+	connect(btnReply, SIGNAL(clicked(bool)), this, SLOT(requestReplay()));
 }
 
 
@@ -49,7 +51,7 @@ void StatusWidget::setCurrentStatus(const Status newStatus)
 void StatusWidget::updateUi()
 {
 // 	kDebug()<<"ScreenName: "<<mCurrentStatus.user.screenName<<"Current: "<<mCurrentStatus.user.userId<<" Settings: "<<Settings::currentUserId();
-	if(mCurrentStatus.user.userId == Settings::currentUserId()){
+	if(mCurrentStatus.user.screenName == Settings::username()){
 		btnReply->setVisible(false);
 	} else {
 		btnRemove->setVisible(false);
@@ -75,3 +77,15 @@ QString StatusWidget::formatDateTime(const QDateTime &time) {
 	return "about " + QString::number(days) + " day" + (days == 1 ? "" : "s") + " ago";
 }
 
+
+
+void StatusWidget::setUserImage(const QString & imgPath)
+{
+	lblImage->setPixmap(QPixmap(imgPath));
+}
+
+void StatusWidget::requestReplay()
+{
+	kDebug();
+	emit sigReply(mCurrentStatus.user.screenName, mCurrentStatus.statusId);
+}

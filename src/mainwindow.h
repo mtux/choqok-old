@@ -20,6 +20,7 @@ class Backend;
 class StatusTextEdit;
 class StatusWidget;
 class QTimer;
+class MediaManagement;
 /**
  * This class serves as the main window for Kwitter.  It handles the
  * menus, toolbars, and status bars.
@@ -49,7 +50,8 @@ protected slots:
 	void updateTimeLines();
 	void homeTimeLinesRecived(QList<Status> &statusList);
 	void replyTimeLineRecived(QList<Status> &statusList);
-	void postingNewStatusRecived(bool isError);
+	void postingNewStatusDone(bool isError);
+	void prepareReply(QString &userName, uint statusId);
 
 	void notify(const QString &title, const QString &message, QString iconPath = QString());
 	
@@ -58,10 +60,19 @@ protected slots:
 	void postStatus();
 	
 	void error(QString &errMsg);
+	
+	void setUserImage(StatusWidget *widget);
+	
+signals:
+	void sigSetUserImage(StatusWidget *widget);
+	
+protected:
+	void keyPressEvent(QKeyEvent * e);
 
 private:
     void setupActions();
 	void setDefaultDirection();
+	void setTxtNewStatusDirection();
 	QString prepareNewStatus();
 	/**
 	 *    Will store @count count of current statuses
@@ -80,6 +91,8 @@ private:
 	StatusTextEdit *txtNewStatus;
 	QList<StatusWidget*> listHomeStatus;
 	QList<StatusWidget*> listReplyStatus;
+	MediaManagement *mediaMan;
+	uint replyToStatusId;
 //     KToggleAction *m_toolbarAction;
 //     KToggleAction *m_statusbarAction;
 };

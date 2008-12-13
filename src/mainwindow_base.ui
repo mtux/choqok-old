@@ -101,14 +101,14 @@ p, li { white-space: pre-wrap; }
        <string>Home</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout" >
-       <property name="margin" >
-        <number>0</number>
-       </property>
-       <property name="spacing" >
-        <number>0</number>
-       </property>
        <item row="0" column="0" >
         <widget class="QScrollArea" name="homeScroll" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="frameShape" >
           <enum>QFrame::NoFrame</enum>
          </property>
@@ -116,10 +116,10 @@ p, li { white-space: pre-wrap; }
           <enum>QFrame::Plain</enum>
          </property>
          <property name="verticalScrollBarPolicy" >
-          <enum>Qt::ScrollBarAlwaysOn</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="horizontalScrollBarPolicy" >
-          <enum>Qt::ScrollBarAlwaysOff</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="widgetResizable" >
           <bool>true</bool>
@@ -129,8 +129,8 @@ p, li { white-space: pre-wrap; }
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>267</width>
-            <height>512</height>
+            <width>274</width>
+            <height>504</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout" >
@@ -151,22 +151,22 @@ p, li { white-space: pre-wrap; }
        <string>Reply</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2" >
-       <property name="spacing" >
-        <number>0</number>
-       </property>
-       <property name="margin" >
-        <number>0</number>
-       </property>
        <item>
         <widget class="QScrollArea" name="replyScroll" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="frameShape" >
           <enum>QFrame::NoFrame</enum>
          </property>
          <property name="verticalScrollBarPolicy" >
-          <enum>Qt::ScrollBarAlwaysOn</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="horizontalScrollBarPolicy" >
-          <enum>Qt::ScrollBarAlwaysOff</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="widgetResizable" >
           <bool>true</bool>
@@ -176,8 +176,8 @@ p, li { white-space: pre-wrap; }
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>267</width>
-            <height>512</height>
+            <width>274</width>
+            <height>504</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3" >
