@@ -20,13 +20,13 @@
 // class QNetworkAccessManager;
 
 /**
-	@author 
+	@author Mehrdad Momeny <mehrdad.momeny@gmail.com>
 */
 class Backend : public QObject
 {
 	Q_OBJECT
 public:
-	enum TimeLineType{All=0, HomeTimeLine, ReplayTimeLine, UserTimeLine};
+	enum TimeLineType{All=0, HomeTimeLine, ReplyTimeLine, UserTimeLine};
     Backend(QObject* parent=0);
 
     ~Backend();
@@ -38,7 +38,7 @@ public:
 	
 public slots:
 // 	void updateTimeLines(TimeLineType type=All, int page=0);
-	void postNewStatus(QString &statusMessage, uint replayToStatusId=0);
+	void postNewStatus(QString &statusMessage, uint replyToStatusId=0);
 	void requestTimeLine(TimeLineType type, int page=0);
 	void requestCurrentUser();
 	
@@ -46,21 +46,22 @@ signals:
 	void sigPostNewStatusDone(bool isError);
 	void sigError(QString &errorMessage);
 	void homeTimeLineRecived(QList<Status> &statusList);
-	void replayTimeLineRecived(QList<Status> &statusList);
+	void replyTimeLineRecived(QList<Status> &statusList);
 	void currentUserInfo(User);
 // 	void directMessagesRecived(QList<Status> &statusList);
 	
 protected slots:
 	void homeTimeLineDone(bool isError);
-	void replayTimeLineDone(bool isError);
+	void replyTimeLineDone(bool isError);
 	void currentUserDone(bool isError);
 	void postNewStatusDone(bool isError);
 	
 private:
 	QString getErrorString(QHttp *sender);
+	QList<Status> * readTimeLineFromXml(QByteArray &buffer);
 	QString urls[4];
 	QBuffer homeBuffer;
-	QBuffer replayBuffer;
+	QBuffer replyBuffer;
 	QBuffer userIdBuffer;
 	QHttp statusHttp;
 	QMap<QString, int> monthes;

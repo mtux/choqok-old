@@ -5,13 +5,6 @@
       http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
   <kcfgfile/>
   <group name="Preferences">
-    <entry name="direction" type="Enum">
-	    <label>Direction</label>
-	    <choices>
-	      <value>LeftToRight</value>
-	      <value>RightToLeft</value>
-	    </choices>
-    </entry>
     <entry name="notifyType" type="Enum">
       <choices>
 	      <value>None</value>
@@ -31,6 +24,12 @@
     <entry name="latestStatusId" type="UInt">
 	    <default>0</default>
     </entry>
+    <entry name="isSaveStatus" type="Bool">
+	    <default>true</default>
+    </entry>
+    <entry name="saveStatusCount" type="Int">
+	    <default>10</default>
+    </entry>
   </group>
   <group name="Account">
     <entry name="username" type="String">
@@ -43,6 +42,13 @@
 	    <default>0</default>
     </entry>
     <entry name="currentUserScreenName" type="String">
+    </entry>
+    <entry name="direction" type="Enum">
+	    <label>Direction</label>
+	    <choices>
+	      <value>LeftToRight</value>
+	      <value>RightToLeft</value>
+	    </choices>
     </entry>
   </group>
 </kcfg>

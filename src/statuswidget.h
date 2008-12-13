@@ -33,7 +33,7 @@ public:
 	Status currentStatus() const;
 	void setCurrentStatus(const Status newStatus);
 signals:
-	void sigReplay(QString &userName);
+	void sigReply(QString &userName);
 	
 protected slots:
 	void remove();

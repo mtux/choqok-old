@@ -29,19 +29,6 @@
    <item row="0" column="1" >
     <widget class="KLineEdit" name="kcfg_username" />
    </item>
-   <item row="0" column="2" >
-    <spacer name="verticalSpacer" >
-     <property name="orientation" >
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0" >
-      <size>
-       <width>20</width>
-       <height>39</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="1" column="0" >
     <widget class="QLabel" name="textLabel1_2" >
      <property name="text" >
@@ -65,18 +52,35 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="2" >
-    <spacer name="verticalSpacer_2" >
-     <property name="orientation" >
-      <enum>Qt::Vertical</enum>
+   <item row="2" column="0" >
+    <widget class="QLabel" name="textLabel2_2" >
+     <property name="text" >
+      <string>Direction :</string>
      </property>
-     <property name="sizeHint" stdset="0" >
-      <size>
-       <width>20</width>
-       <height>39</height>
-      </size>
+     <property name="wordWrap" >
+      <bool>false</bool>
      </property>
-    </spacer>
+    </widget>
+   </item>
+   <item row="2" column="1" >
+    <widget class="QComboBox" name="kcfg_direction" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Maximum" hsizetype="MinimumExpanding" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <item>
+      <property name="text" >
+       <string>Left to Right</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>Right to Left</string>
+      </property>
+     </item>
+    </widget>
    </item>
   </layout>
  </widget>

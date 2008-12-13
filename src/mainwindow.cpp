@@ -17,7 +17,7 @@
 #include <KDE/KLocale>
 
 #include <QProcess>
-
+#include <QTimer>
 #include "backend.h"
 #include "statustextedit.h"
 
@@ -27,9 +27,11 @@ MainWindow::MainWindow()
 	kDebug();
     // accept dnd
 //     setAcceptDrops(true);
+	Settings::setLatestStatusId(0);
+	Settings::self()->readConfig();
 	twitter = new Backend;
 	connect(twitter, SIGNAL(homeTimeLineRecived(QList< Status >&)), this, SLOT(homeTimeLinesRecived(QList< Status >&)));
-	connect(twitter, SIGNAL(replayTimeLineRecived(QList< Status >&)), this, SLOT(replayTimeLineRecived(QList< Status >&)));
+	connect(twitter, SIGNAL(replyTimeLineRecived(QList< Status >&)), this, SLOT(replyTimeLineRecived(QList< Status >&)));
 	connect(twitter, SIGNAL(sigPostNewStatusDone(bool)), this, SLOT(postingNewStatusRecived(bool)));
     // tell the KXmlGuiWindow that this is indeed the main widget
 	mainWidget = new QWidget;
@@ -39,7 +41,8 @@ MainWindow::MainWindow()
 	txtNewStatus->setObjectName("txtNewStatus");
 	txtNewStatus->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 	txtNewStatus->setMaximumHeight(70);
-	txtNewStatus->setFocus();
+	txtNewStatus->setFocus(Qt::OtherFocusReason);
+	txtNewStatus->setTabChangesFocus ( true );
 	ui.inputLayout->addWidget(txtNewStatus);
 	
 	setCentralWidget(mainWidget);
@@ -48,9 +51,13 @@ MainWindow::MainWindow()
 	statusBar()->show();
 	setupGUI();
 	
-	
 	setDefaultDirection();
-	txtNewStatus->setTabChangesFocus ( true );
+	
+	updateTimeLines();
+	timelineTimer = new QTimer(this);
+	timelineTimer->setInterval(Settings::updateInterval()*60000);
+	timelineTimer->start();
+	connect(timelineTimer, SIGNAL(timeout()), this, SLOT(updateTimeLines()));
 	connect(txtNewStatus, SIGNAL(textChanged()), this, SLOT(checkNewStatusCharactersCount()));
 	connect(txtNewStatus, SIGNAL(returnPressed()), this, SLOT(postStatus()));
 	connect(twitter, SIGNAL(sigError(QString&)), this, SLOT(error(QString&)));
@@ -58,6 +65,14 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
+	kDebug();
+	//TODO Save Status list
+	if(Settings::isSaveStatus()){
+		saveStatuses(Settings::saveStatusCount());
+	} else {
+		Settings::setLatestStatusId(0);
+	}
+	Settings::self()->writeConfig();
 }
 
 void MainWindow::setupActions()
@@ -116,19 +131,23 @@ void MainWindow::settingsChanged()
 	kDebug();
 	twitter->requestCurrentUser();
 	setDefaultDirection();
+	timelineTimer->setInterval(Settings::updateInterval()*60000);
 }
 
-void MainWindow::notify(const QString &title, const QString &message)
+void MainWindow::notify(const QString &title, const QString &message, QString iconUrl)
 {
-	kDebug();
-	statusBar()->showMessage(i18n("%1, %2", title, message), Settings::notifyInterval());
+	if(iconUrl.isEmpty()){
+		iconUrl = "kwitter";
+		statusBar()->showMessage( title+ " " + message, TIMEOUT);
+	}
+	
 	switch(Settings::notifyType()){
 		case 0:
 			break;
 		case 1:
 			break;
 		case 2://Libnotify!
-			QString libnotifyCmd = QString("notify-send -t ") + QString::number((int)Settings::notifyInterval()*1000) + QString(" -u low -i kwitter \"") + title + QString("\" \"") + message + QString("\"");
+			QString libnotifyCmd = QString("notify-send -t ") + QString::number((int)Settings::notifyInterval()*1000) + QString(" -u low -i "+ iconUrl +" \"") + title + QString("\" \"") + message + QString("\"");
 			QProcess::execute(libnotifyCmd);
 			break;
 	}
@@ -138,32 +157,66 @@ void MainWindow::updateTimeLines()
 {
 	kDebug();
 	twitter->requestTimeLine(Backend::HomeTimeLine);
-// 	twitter->requestTimeLine(Backend::ReplayTimeLine);
+	twitter->requestTimeLine(Backend::ReplyTimeLine);
+	statusBar()->showMessage(i18n("Loading timelines..."));
 }
 
 void MainWindow::homeTimeLinesRecived(QList< Status > & statusList)
 {
 	kDebug();
+	statusBar()->showMessage(i18n("Latest friends timeline recived!"), TIMEOUT);
 	if(statusList.count()==0){
 		kDebug()<<"Status list is empty";
-		statusBar()->showMessage(i18n("No new twits recived, The list is up to date."), Settings::notifyInterval());
+		statusBar()->showMessage(i18n("No new twits recived, The list is up to date."), TIMEOUT);
+		return;
 	}
 	QList<Status>::const_iterator it = statusList.constBegin();
 	QList<Status>::const_iterator endIt = statusList.constEnd();
 	for(;it!=endIt; ++it){
 		if( it->statusId > Settings::latestStatusId()){
 // 			kDebug()<<"StatusId: "<<it->statusId<<"UserId: "<<it->user.userId;
-			QString notifyMessage;
+			notify(it->user.screenName, it->content, "userImageAddress");
 			StatusWidget *wt = new StatusWidget(this);
 			wt->setCurrentStatus(*it);
+			listHomeStatus.append(wt);
 			ui.frameHome->layout()->addWidget(wt);
 // 			ui.tabs->widget(0)->layout()->addWidget(wt);
 		}
 	}
+	uint latestId = statusList.first().statusId;
+	if(latestId > Settings::latestStatusId()){
+		kDebug()<<"Latest sets to: "<<latestId;
+		Settings::setLatestStatusId(latestId);
+	}
 }
 
-void MainWindow::replayTimeLineRecived(QList< Status > & statusList)
+void MainWindow::replyTimeLineRecived(QList< Status > & statusList)
 {
+	kDebug();
+	statusBar()->showMessage(i18n("Latest replies timeline recived!"), TIMEOUT);
+	if(statusList.count()==0){
+		kDebug()<<"Status list is empty";
+		statusBar()->showMessage(i18n("No new twits received, The list is up to date."), TIMEOUT);
+		return;
+	}
+	QList<Status>::const_iterator it = statusList.constBegin();
+	QList<Status>::const_iterator endIt = statusList.constEnd();
+	for(;it!=endIt; ++it){
+		if( it->statusId > Settings::latestStatusId()){
+// 			kDebug()<<"StatusId: "<<it->statusId<<"UserId: "<<it->user.userId;
+			notify(it->user.screenName, it->content, "userImageAddress");
+			StatusWidget *wt = new StatusWidget(this);
+			wt->setCurrentStatus(*it);
+			listReplyStatus.append(wt);
+			ui.frameReply->layout()->addWidget(wt);
+// 			ui.tabs->widget(0)->layout()->addWidget(wt);
+		}
+	}
+	uint latestId = statusList.first().statusId;
+	if(latestId > Settings::latestStatusId()){
+		kDebug()<<"Latest sets to: "<<latestId;
+		Settings::setLatestStatusId(latestId);
+	}
 }
 
 void MainWindow::setDefaultDirection()
@@ -173,6 +226,17 @@ void MainWindow::setDefaultDirection()
 	ui.tabs->widget(1)->setLayoutDirection((Qt::LayoutDirection)Settings::direction());
 // 	txtNewStatus->document()->firstBlock()->
 // 	inputLayout->setLayoutDirection((Qt::LayoutDirection)Settings::direction());
+	QTextCursor c = txtNewStatus->textCursor();
+	QTextBlockFormat f = c.blockFormat();
+		
+	if (Settings::direction() == Qt::RightToLeft) {
+		f.setLayoutDirection(Qt::RightToLeft);	
+	} else {
+		f.setLayoutDirection(Qt::LeftToRight);
+	}
+	c.setBlockFormat(f);
+	txtNewStatus->setTextCursor(c);
+	txtNewStatus->setFocus(Qt::OtherFocusReason);
 }
 
 void MainWindow::error(QString & errMsg)
@@ -184,6 +248,8 @@ void MainWindow::postStatus()
 {
 	kDebug();
 	QString twit = prepareNewStatus();
+	statusBar()->showMessage(i18n("Posting New status..."));
+	txtNewStatus->setEnabled(false);
 	twitter->postNewStatus(twit);
 }
 
@@ -203,8 +269,21 @@ QString MainWindow::prepareNewStatus()
 void MainWindow::postingNewStatusRecived(bool isError)
 {
 	if(!isError){
-		txtNewStatus->clear();
+		txtNewStatus->setText(QString());
+		notify("Success!", "New status posted");
 	}
+	txtNewStatus->setEnabled(true);
+}
+
+bool MainWindow::saveStatuses(int count)
+{
+	if(count >= listHomeStatus.count()){
+		//Save all:
+		
+	} else {
+		
+	}
+	return false;///When implement this function remove this!
 }
 
 #include "mainwindow.moc"

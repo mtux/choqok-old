@@ -18,7 +18,7 @@ StatusWidget::StatusWidget(QWidget *parent)
 	setupUi(this);
 	
 	btnFavorite->setIcon(KIcon("rating"));
-	btnReplay->setIcon(KIcon("edit-undo"));
+	btnReply->setIcon(KIcon("edit-undo"));
 	btnRemove->setIcon(KIcon("edit-delete"));
 }
 
@@ -50,13 +50,14 @@ void StatusWidget::updateUi()
 {
 // 	kDebug()<<"ScreenName: "<<mCurrentStatus.user.screenName<<"Current: "<<mCurrentStatus.user.userId<<" Settings: "<<Settings::currentUserId();
 	if(mCurrentStatus.user.userId == Settings::currentUserId()){
-		btnReplay->setVisible(false);
+		btnReply->setVisible(false);
 	} else {
 		btnRemove->setVisible(false);
 	}
 	QString sign = "<b><a href='http://twitter.com/"+mCurrentStatus.user.screenName+"'>"+mCurrentStatus.user.screenName+"</a> - </b> ";
 	sign += "<a href='http://twitter.com/" + mCurrentStatus.user.screenName + "/statuses/" + QString::number(mCurrentStatus.statusId) +
-			 "'>" + formatDateTime(mCurrentStatus.creationDateTime) + "</a>";
+			 "'>" + formatDateTime(mCurrentStatus.creationDateTime) + "</a> - ";
+	sign += mCurrentStatus.source;
 	lblSign->setText(sign);
 	lblStatus->setText(mCurrentStatus.content);
 	//TODO: set Image

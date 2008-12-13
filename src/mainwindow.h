@@ -15,8 +15,11 @@
 #include "datacontainers.h"
 
 #define MAX_STATUS_SIZE 140
+#define TIMEOUT 5000
 class Backend;
 class StatusTextEdit;
+class StatusWidget;
+class QTimer;
 /**
  * This class serves as the main window for Kwitter.  It handles the
  * menus, toolbars, and status bars.
@@ -45,10 +48,10 @@ protected slots:
 	
 	void updateTimeLines();
 	void homeTimeLinesRecived(QList<Status> &statusList);
-	void replayTimeLineRecived(QList<Status> &statusList);
+	void replyTimeLineRecived(QList<Status> &statusList);
 	void postingNewStatusRecived(bool isError);
 
-	void notify(const QString &title, const QString &message);
+	void notify(const QString &title, const QString &message, QString iconPath = QString());
 	
 	void checkNewStatusCharactersCount();
 	
@@ -60,14 +63,23 @@ private:
     void setupActions();
 	void setDefaultDirection();
 	QString prepareNewStatus();
+	/**
+	 *    Will store @count count of current statuses
+	 * @param count 
+	 * @return True on success, and false on failer
+	 */
+	bool saveStatuses(int count);
 
 private:
+	QTimer *timelineTimer;
 	Ui::MainWindow_base ui;
     Ui::prefs_base ui_prefs_base;
 	Ui::accounts_base ui_accounts_base;
 	QWidget *mainWidget;
 	Backend *twitter;
 	StatusTextEdit *txtNewStatus;
+	QList<StatusWidget*> listHomeStatus;
+	QList<StatusWidget*> listReplyStatus;
 //     KToggleAction *m_toolbarAction;
 //     KToggleAction *m_statusbarAction;
 };

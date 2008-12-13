@@ -34,10 +34,10 @@ public:
 	QString content;
 	QString source;
 	bool isTruncated;
-	uint replayToStatusId;
-	uint replayToUserId;
+	uint replyToStatusId;
+	uint replyToUserId;
 	bool isFavorited;
-	QString replayToUserScreenName;
+	QString replyToUserScreenName;
 	User user;
 };
 #endif
