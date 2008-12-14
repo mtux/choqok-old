@@ -43,12 +43,12 @@ public:
 	virtual ~MainWindow();
 	
 	static void systemNotify(const QString title, const QString message, QString iconUrl);
-
+public slots:
+	void updateTimeLines();
 protected slots:
     void optionsPreferences();
 	void settingsChanged();
 	
-	void updateTimeLines();
 	void homeTimeLinesRecived(QList<Status> &statusList);
 	void replyTimeLineRecived(QList<Status> &statusList);
 	void postingNewStatusDone(bool isError);

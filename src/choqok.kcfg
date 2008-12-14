@@ -5,13 +5,19 @@
       http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
   <kcfgfile/>
   <group name="Preferences">
+  	<entry name="systrayTriggerType" type="Enum">
+      <choices>
+	      <value>MainWindow</value>
+	      <value>QuickStatus</value>
+	      <value>UpdateTimeLine</value>
+	  </choices>
+    </entry>
     <entry name="notifyType" type="Enum">
       <choices>
 	      <value>None</value>
 	      <value>KNotify</value>
 	      <value>LibNotify</value>
 	  </choices>
-	    <default></default>
     </entry>
     <entry name="updateInterval" type="Int">
 	    <label>Update interval</label>

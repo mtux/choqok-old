@@ -97,7 +97,14 @@ void MainWindow::setupActions()
 	actUpdate->setGlobalShortcutAllowed(true);
 	actUpdate->setGlobalShortcut(KShortcut(Qt::ControlModifier | Qt::MetaModifier | Qt::Key_F5));
 	connect(actUpdate, SIGNAL(triggered( bool )), this, SLOT(updateTimeLines()));
-// 	
+	
+	KAction *newTwit = new KAction(this);
+	newTwit->setIcon(KIcon("document-new"));
+	newTwit->setText(i18n("Quick Twit"));
+	actionCollection()->addAction(QLatin1String("choqok_new_twit"), newTwit);
+	newTwit->setShortcut(Qt::ControlModifier | Qt::Key_T);
+	newTwit->setGlobalShortcutAllowed(true);
+	newTwit->setGlobalShortcut(KShortcut(Qt::ControlModifier | Qt::MetaModifier | Qt::Key_T));
 }
 
 void MainWindow::optionsPreferences()

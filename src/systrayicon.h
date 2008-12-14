@@ -31,10 +31,13 @@ public:
 public slots:
 	void quitApp();
 	void postQuickTwit();
+	void toggleMainWindowVisibility();
+	void sysTrayActivated( QSystemTrayIcon::ActivationReason reason );
 private:
 	void setupActions();
 	MainWindow *mainWin;
-	QuickTwit quickWidget;
+	QuickTwit *quickWidget;
+	bool isQuickActivated;
 };
 
 #endif
