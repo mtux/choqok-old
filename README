@@ -8,13 +8,19 @@ Requirements to build:
      CMake 2.6
      KDE 4 library Development packages! (On Ubuntu is kdelibs5-dev)
 
+    To get latest snapshot:
+git clone git://github.com/mtux/choqok.git
+
+    To Update your copy:
+cd choqok
+git-pull
+
 How To Build This Project
 -=-=-=-=-=-=-=-=-=-=-=-=-=
-git clone git://github.com/mtux/choqok.git
 cd choqok
 mkdir build
 cd build
-cmake ..      <- do not forget the ..
+cmake -DCMAKE_INSTALL_PREFIX=$KDEDIRS ..      <- do not forget the ..
 make
 sudo make install OR su -c 'make install'
 

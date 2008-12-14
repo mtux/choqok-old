@@ -68,7 +68,7 @@ MainWindow::MainWindow()
 	connect(timelineTimer, SIGNAL(timeout()), this, SLOT(updateTimeLines()));
 	connect(txtNewStatus, SIGNAL(charsLeft(int)), this, SLOT(checkNewStatusCharactersCount(int)));
 	connect(txtNewStatus, SIGNAL(returnPressed(QString&)), this, SLOT(postStatus(QString&)));
-	connect(twitter, SIGNAL(sigError(QString&)), this, SLOT(error(QString&)));
+// 	connect(twitter, SIGNAL(sigError(QString&)), this, SLOT(error(QString&)));
 	connect(this, SIGNAL(sigSetUserImage(StatusWidget*)), this, SLOT(setUserImage(StatusWidget*)));
 
 }
@@ -190,29 +190,14 @@ void MainWindow::homeTimeLinesRecived(QList< Status > & statusList)
 {
 	kDebug();
 	statusBar()->showMessage(i18n("Latest friends timeline recived!"), TIMEOUT);
-	if(statusList.count()==0){
+	int count = statusList.count();
+	if(count==0){
 		kDebug()<<"Status list is empty";
 		statusBar()->showMessage(i18n("No new twits recived, The list is up to date."), TIMEOUT);
 		return;
-	}
-	QList<Status>::const_iterator it = statusList.constBegin();
-	QList<Status>::const_iterator endIt = statusList.constEnd();
-	for(;it!=endIt; ++it){
-		if(!isStartMode){
-			MainWindow::systemNotify(it->user.screenName, it->content,
-									 mediaMan->getImageLocalPathIfExist(it->user.profileImageUrl));
-		}
-		StatusWidget *wt = new StatusWidget(this);
-		wt->setCurrentStatus(*it);
-		emit sigSetUserImage(wt);
-		connect(wt, SIGNAL(sigReply(QString&, uint)), this, SLOT(prepareReply(QString&, uint)));
-		listHomeStatus.append(wt);
-		ui.frameHome->layout()->addWidget(wt);
-	}
-	uint latestId = statusList.first().statusId;
-	if(latestId > Settings::latestStatusId()){
-		kDebug()<<"Latest sets to: "<<latestId;
-		Settings::setLatestStatusId(latestId);
+	} else {
+		kDebug()<<statusList.count()<<" Statuses received.";
+		addNewStatusesToUi(statusList, ui.frameHome->layout());
 	}
 }
 
@@ -224,8 +209,17 @@ void MainWindow::replyTimeLineRecived(QList< Status > & statusList)
 		kDebug()<<"Status list is empty";
 		statusBar()->showMessage(i18n("No new twits received, The list is up to date."), TIMEOUT);
 		return;
+	}else {
+		kDebug()<<statusList.count()<<" Statuses received.";
+		addNewStatusesToUi(statusList, ui.frameReply->layout());
 	}
 	
+	
+}
+
+void MainWindow::addNewStatusesToUi(QList< Status > & statusList, QLayout * layoutToAddStatuses)
+{
+	kDebug();
 	QList<Status>::const_iterator it = statusList.constBegin();
 	QList<Status>::const_iterator endIt = statusList.constEnd();
 	
@@ -239,7 +233,7 @@ void MainWindow::replyTimeLineRecived(QList< Status > & statusList)
 		emit sigSetUserImage(wt);
 		connect(wt, SIGNAL(sigReply(QString&, uint)), this, SLOT(prepareReply(QString&, uint)));
 		listReplyStatus.append(wt);
-		ui.frameReply->layout()->addWidget(wt);
+		layoutToAddStatuses->addWidget(wt);
 	}
 	uint latestId = statusList.first().statusId;
 	if(latestId > Settings::latestStatusId()){
@@ -281,10 +275,12 @@ void MainWindow::postingNewStatusDone(bool isError)
 {
 	if(!isError){
 		txtNewStatus->setText(QString());
+		txtNewStatus->clearContentsAndSetDirection((Qt::LayoutDirection)Settings::direction());
 		MainWindow::systemNotify("Success!", "New status posted successfully", APPNAME);
+	} else {
+		error(twitter->latestErrorString());
 	}
 	txtNewStatus->setEnabled(true);
-	txtNewStatus->setDefaultDirection((Qt::LayoutDirection)Settings::direction());
 	if(Settings::hideTwitField())
 		ui.inputFrame->hide();
 }

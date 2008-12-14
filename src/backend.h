@@ -35,6 +35,7 @@ public:
 	void logout();
 	
 	QDateTime dateFromString(const QString &date);
+	QString& latestErrorString();
 	
 public slots:
 // 	void updateTimeLines(TimeLineType type=All, int page=0);
@@ -45,7 +46,7 @@ public slots:
 	
 signals:
 	void sigPostNewStatusDone(bool isError);
-	void sigError(QString &errorMessage);
+// 	void sigError(QString &errorMessage);
 	void homeTimeLineRecived(QList<Status> &statusList);
 	void replyTimeLineRecived(QList<Status> &statusList);
 	void currentUserInfo(User);
@@ -65,7 +66,7 @@ private:
 	QBuffer userIdBuffer;
 	QHttp statusHttp;
 	QMap<QString, int> monthes;
-// 	QHttp timelineHttp;
+	QString mLatestErrorString;
 };
 
 #endif

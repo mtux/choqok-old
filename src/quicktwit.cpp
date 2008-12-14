@@ -31,6 +31,7 @@ QuickTwit::QuickTwit(QWidget* parent): KDialog(parent)
 	twitter = new Backend(this);
 	connect(txtStatus, SIGNAL(returnPressed(QString&)), this, SLOT(slotPostNewStatus(QString&)));
 	connect(txtStatus, SIGNAL(charsLeft(int)), this, SLOT(checkNewStatusCharactersCount(int)));
+	connect(twitter, SIGNAL(sigPostNewStatusDone(bool)), this, SLOT(slotPostNewStatusDone(bool)));
 }
 
 
@@ -52,8 +53,9 @@ void QuickTwit::checkNewStatusCharactersCount(int numOfChars)
 
 void QuickTwit::slotPostNewStatusDone(bool isError)
 {
+	kDebug();
 	if(!isError){
-		
+		txtStatus->clearContentsAndSetDirection((Qt::LayoutDirection)Settings::direction());
 		MainWindow::systemNotify("Success!", "New status posted successfully", APPNAME);
 	}
 	this->close();

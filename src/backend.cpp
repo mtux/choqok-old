@@ -80,7 +80,7 @@ void Backend::requestTimeLine(TimeLineType type, int page)
 	if(type == All){
 		QString errMsg = i18n("Internal coding error, requesting all timelines not tolerated!");
 		kDebug()<<"Internal coding error, requesting all timelines not tolerated!";
-		emit sigError(errMsg);
+		mLatestErrorString = errMsg;
 		return;
 	}
 	QUrl url(urls[type]);
@@ -110,9 +110,8 @@ void Backend::homeTimeLineDone(bool isError)
 {
 	kDebug()<<isError;
 	if(isError){
-		QString errMsg = getErrorString(qobject_cast<QHttp *>(sender()));
-		kDebug()<<errMsg;
-		emit sigError(errMsg);
+		mLatestErrorString = getErrorString(qobject_cast<QHttp *>(sender()));
+		kDebug()<<mLatestErrorString;
 		return;
 	}
 	
@@ -131,9 +130,8 @@ void Backend::replyTimeLineDone(bool isError)
 {
 	kDebug()<<isError;
 	if(isError){
-		QString errMsg = getErrorString(qobject_cast<QHttp *>(sender()));
-		kDebug()<<errMsg;
-		emit sigError(errMsg);
+		mLatestErrorString = getErrorString(qobject_cast<QHttp *>(sender()));
+		kDebug()<<mLatestErrorString;
 		return;
 	}
 	QByteArray tmp = replyBuffer.data();
@@ -196,7 +194,7 @@ void Backend::postNewStatusDone(bool isError)
 	kDebug();
 	if(isError){
 		QString err = getErrorString(qobject_cast<QHttp *>(sender()));
-		emit sigError(err);
+		mLatestErrorString = err;
 		emit sigPostNewStatusDone(true);
 	} else {
 		emit sigPostNewStatusDone(false);
@@ -216,7 +214,7 @@ QList<Status> * Backend::readTimeLineFromXml(QByteArray & buffer)
 	if (root.tagName() != "statuses") {
 		QString err = i18n("Data returned from server corrupted!");
 		kDebug()<<"there no statuses tag in XML\t the XML is: \n"<<buffer.data();
-		emit sigError(err);
+		mLatestErrorString = err;
 		return 0;
 	}
 		QDomNode node = root.firstChild();
@@ -273,6 +271,11 @@ QList<Status> * Backend::readTimeLineFromXml(QByteArray & buffer)
 void Backend::abortPostNewStatus()
 {
 	statusHttp.abort();
+}
+
+QString& Backend::latestErrorString()
+{
+	return mLatestErrorString;
 }
 
 #include "backend.moc"

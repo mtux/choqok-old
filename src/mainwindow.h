@@ -78,6 +78,7 @@ protected:
 private:
     void setupActions();
 	void setDefaultDirection();
+	void addNewStatusesToUi(QList< Status > & statusList, QLayout *layoutToAddStatuses);
 // 	void setTxtNewStatusDirection();
 // 	QString prepareNewStatus(QString newStatus=QString());
 	/**

@@ -28,6 +28,7 @@ public:
 public slots:
 	void setDefaultDirection(Qt::LayoutDirection dir);
 	void setNumOfCharsLeft();
+	void clearContentsAndSetDirection(Qt::LayoutDirection dir);
 	
 protected:
 	virtual void keyPressEvent(QKeyEvent *e);

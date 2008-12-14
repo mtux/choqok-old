@@ -50,4 +50,12 @@ void StatusTextEdit::setNumOfCharsLeft()
 	emit charsLeft(remainChar);
 }
 
+void StatusTextEdit::clearContentsAndSetDirection(Qt::LayoutDirection dir)
+{
+	this->clear();
+	setDefaultDirection(dir);
+}
+
 #include "statustextedit.moc"
+
+
