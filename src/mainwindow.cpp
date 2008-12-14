@@ -71,7 +71,7 @@ MainWindow::MainWindow()
 	connect(txtNewStatus, SIGNAL(returnPressed(QString&)), this, SLOT(postStatus(QString&)));
 // 	connect(twitter, SIGNAL(sigError(QString&)), this, SLOT(error(QString&)));
 	connect(this, SIGNAL(sigSetUserImage(StatusWidget*)), this, SLOT(setUserImage(StatusWidget*)));
-
+	connect(ui.toggleArrow, SIGNAL(clicked()), this, SLOT(toggleTwitFieldVisible()));
 }
 
 MainWindow::~MainWindow()
@@ -107,14 +107,14 @@ void MainWindow::setupActions()
 	newTwit->setGlobalShortcutAllowed(true);
 	newTwit->setGlobalShortcut(KShortcut(Qt::ControlModifier | Qt::MetaModifier | Qt::Key_T));
 	
-	KAction *toggleTwitField = new KAction(this);
-	toggleTwitField->setShortcut(Qt::ControlModifier | Qt::Key_E);
-	if(ui.inputFrame->isVisible())
-		toggleTwitField->setText(i18n("Hide twit box"));
-	else
-		toggleTwitField->setText(i18n("Show twit box"));
-	actionCollection()->addAction(QLatin1String("toggle_twit_field"), toggleTwitField);
-	connect(toggleTwitField, SIGNAL(triggered( bool )), this, SLOT(actToggleTwitFieldVisible()));
+// 	KAction *toggleTwitField = new KAction(this);
+// 	toggleTwitField->setShortcut(Qt::ControlModifier | Qt::Key_E);
+// 	if(ui.inputFrame->isVisible())
+// 		toggleTwitField->setText(i18n("Hide twit box"));
+// 	else
+// 		toggleTwitField->setText(i18n("Show twit box"));
+// 	actionCollection()->addAction(QLatin1String("toggle_twit_field"), toggleTwitField);
+// 	connect(toggleTwitField, SIGNAL(triggered( bool )), this, SLOT(actToggleTwitFieldVisible()));
 }
 
 void MainWindow::optionsPreferences()
@@ -161,8 +161,11 @@ void MainWindow::settingsChanged()
 	timelineTimer->setInterval(Settings::updateInterval()*60000);
 	if(Settings::hideTwitField()){
 		ui.inputFrame->hide();
-	} else
+		ui.toggleArrow->setArrowType(Qt::LeftArrow);
+	} else{
+		ui.toggleArrow->setArrowType(Qt::DownArrow);
 		ui.inputFrame->show();
+	}
 }
 
 void MainWindow::notify(const QString &message)
@@ -358,15 +361,15 @@ void MainWindow::abortPostNewStatus()
 	twitter->abortPostNewStatus();
 }
 
-void MainWindow::actToggleTwitFieldVisible()
+void MainWindow::toggleTwitFieldVisible()
 {
 	if(ui.inputFrame->isVisible()){
 		ui.inputFrame->hide();
-		actionCollection()->action("toggle_twit_field")->setText(i18n("Hide twit box"));
+		ui.toggleArrow->setArrowType(Qt::LeftArrow);
 	}
 	else {
 		ui.inputFrame->show();
-		actionCollection()->action("toggle_twit_field")->setText(i18n("Show twit box"));
+		ui.toggleArrow->setArrowType(Qt::DownArrow);
 	}
 }
 

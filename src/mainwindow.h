@@ -49,7 +49,7 @@ public slots:
 protected slots:
     void optionsPreferences();
 	void settingsChanged();
-	void actToggleTwitFieldVisible();
+	void toggleTwitFieldVisible();
 	
 	void homeTimeLinesRecived(QList<Status> &statusList);
 	void replyTimeLineRecived(QList<Status> &statusList);

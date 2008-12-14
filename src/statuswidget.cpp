@@ -17,11 +17,14 @@ StatusWidget::StatusWidget(QWidget *parent)
 {
 	setupUi(this);
 	
+	timer.start(UPDATEINTERVAL);
+	
 	btnFavorite->setIcon(KIcon("rating"));
 	btnReply->setIcon(KIcon("edit-undo"));
 	btnRemove->setIcon(KIcon("edit-delete"));
 	
 	connect(btnReply, SIGNAL(clicked(bool)), this, SLOT(requestReplay()));
+	connect(&timer, SIGNAL(timeout()), this, SLOT(updateSign()));
 }
 
 
@@ -56,11 +59,7 @@ void StatusWidget::updateUi()
 	} else {
 		btnRemove->setVisible(false);
 	}
-	QString sign = "<b><a href='http://twitter.com/"+mCurrentStatus.user.screenName+"'>"+mCurrentStatus.user.screenName+"</a> - </b> ";
-	sign += "<a href='http://twitter.com/" + mCurrentStatus.user.screenName + "/statuses/" + QString::number(mCurrentStatus.statusId) +
-			 "'>" + formatDateTime(mCurrentStatus.creationDateTime) + "</a> - ";
-	sign += mCurrentStatus.source;
-	lblSign->setText(sign);
+	lblSign->setText(generateSign());
 	lblStatus->setText(mCurrentStatus.content);
 	//TODO: set Image
 }
@@ -88,6 +87,20 @@ void StatusWidget::requestReplay()
 {
 	kDebug();
 	emit sigReply(mCurrentStatus.user.screenName, mCurrentStatus.statusId);
+}
+
+QString StatusWidget::generateSign()
+{
+	QString sign = "<b><a href='http://twitter.com/"+mCurrentStatus.user.screenName+"'>"+mCurrentStatus.user.screenName+"</a> - </b> ";
+	sign += "<a href='http://twitter.com/" + mCurrentStatus.user.screenName + "/statuses/" + QString::number(mCurrentStatus.statusId) +
+			"'>" + formatDateTime(mCurrentStatus.creationDateTime) + "</a> - ";
+	sign += mCurrentStatus.source;
+	return sign;
+}
+
+void StatusWidget::updateSign()
+{
+	lblSign->setText(generateSign());
 }
 
 #include "statuswidget.moc"

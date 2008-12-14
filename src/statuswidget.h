@@ -13,8 +13,11 @@
 #define STATUSWIDGET_H
 
 #include <QFrame>
+#include <QTimer>
 #include <ui_status_base.h>
 #include "datacontainers.h"
+#define UPDATEINTERVAL 3*60000
+
 /**
 Status Widget
 
@@ -41,10 +44,12 @@ protected slots:
 	void remove();
 	void setFavorite(bool isFavorite);
 	void requestReplay();
+	void updateSign();
 	
 private:
+	QString generateSign();
 	void updateUi();
-	
+	QTimer timer;
 	Status mCurrentStatus;
 
 };
