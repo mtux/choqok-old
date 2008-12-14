@@ -14,6 +14,8 @@
 
 #include <ksystemtrayicon.h>
 #include "mainwindow.h"
+#include "quicktwit.h"
+
 /**
 System tray icon!
 
@@ -28,9 +30,11 @@ public:
     ~SysTrayIcon();
 public slots:
 	void quitApp();
+	void postQuickTwit();
 private:
 	void setupActions();
 	MainWindow *mainWin;
+	QuickTwit quickWidget;
 };
 
 #endif

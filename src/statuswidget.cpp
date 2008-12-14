@@ -89,3 +89,5 @@ void StatusWidget::requestReplay()
 	kDebug();
 	emit sigReply(mCurrentStatus.user.screenName, mCurrentStatus.statusId);
 }
+
+#include "statuswidget.moc"

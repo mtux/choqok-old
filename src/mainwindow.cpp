@@ -20,6 +20,7 @@
 #include <QTimer>
 #include <QKeyEvent>
 
+#include "constants.h"
 #include "backend.h"
 #include "statustextedit.h"
 #include "mediamanagement.h"
@@ -30,6 +31,7 @@ MainWindow::MainWindow()
 	kDebug();
     // accept dnd
 //     setAcceptDrops(true);
+	this->setAttribute(Qt::WA_DeleteOnClose, false);
 	Settings::setLatestStatusId(0);
 	Settings::self()->readConfig();
 	twitter = new Backend;
@@ -65,8 +67,8 @@ MainWindow::MainWindow()
 	mediaMan = new MediaManagement(this);
 	
 	connect(timelineTimer, SIGNAL(timeout()), this, SLOT(updateTimeLines()));
-	connect(txtNewStatus, SIGNAL(textChanged()), this, SLOT(checkNewStatusCharactersCount()));
-	connect(txtNewStatus, SIGNAL(returnPressed()), this, SLOT(postStatus()));
+	connect(txtNewStatus, SIGNAL(charsLeft(int)), this, SLOT(checkNewStatusCharactersCount(int)));
+	connect(txtNewStatus, SIGNAL(returnPressed(QString&)), this, SLOT(postStatus(QString&)));
 	connect(twitter, SIGNAL(sigError(QString&)), this, SLOT(error(QString&)));
 	connect(this, SIGNAL(sigSetUserImage(StatusWidget*)), this, SLOT(setUserImage(StatusWidget*)));
 }
@@ -92,6 +94,8 @@ void MainWindow::setupActions()
 	KAction *actUpdate = new KAction(KIcon("view-refresh"), i18n("Update timeline"), this);
 	actionCollection()->addAction(QLatin1String("update_timeline"), actUpdate);
 	actUpdate->setShortcut(Qt::Key_F5);
+	actUpdate->setGlobalShortcutAllowed(true);
+	actUpdate->setGlobalShortcut(KShortcut(Qt::ControlModifier | Qt::MetaModifier | Qt::Key_F5));
 	connect(actUpdate, SIGNAL(triggered( bool )), this, SLOT(updateTimeLines()));
 // 	
 }
@@ -122,16 +126,14 @@ void MainWindow::optionsPreferences()
     dialog->show();
 }
 
-void MainWindow::checkNewStatusCharactersCount()
+void MainWindow::checkNewStatusCharactersCount(int numOfChars)
 {
-	int count = txtNewStatus->toPlainText().count();
-	int remainChar = 140 - count;
-	if(remainChar < 30){
+	if(numOfChars < 30){
 		ui.lblCounter->setStyleSheet("QLabel {color: red}");
 	} else {
 		ui.lblCounter->setStyleSheet("QLabel {color: green}");
 	}
-	ui.lblCounter->setText(i18n("%1", remainChar));
+	ui.lblCounter->setText(i18n("%1", numOfChars));
 }
 
 void MainWindow::settingsChanged()
@@ -142,20 +144,20 @@ void MainWindow::settingsChanged()
 	timelineTimer->setInterval(Settings::updateInterval()*60000);
 }
 
-void MainWindow::notify(const QString &title, const QString &message, QString iconUrl)
+void MainWindow::notify(const QString &message)
 {
-	if(iconUrl.isEmpty()){
-		iconUrl = "choqok";
-		statusBar()->showMessage( title+ " " + message, TIMEOUT);
-	}
-	
-		switch(Settings::notifyType()){
+	statusBar()->showMessage( message, TIMEOUT);
+}
+
+void MainWindow::systemNotify(const QString title, const QString message, QString iconUrl)
+{
+	switch(Settings::notifyType()){
 			case 0:
 				break;
 			case 1:
 				break;
 			case 2://Libnotify!
-				QString libnotifyCmd = QString("notify-send -t ") + QString::number((int)Settings::notifyInterval()*1000) + QString(" -u low -i "+ iconUrl +" \"") + title + QString("\" \"") + message + QString("\"");
+				QString libnotifyCmd = QString("notify-send -t ") + QString::number(Settings::notifyInterval()*1000) + QString(" -u low -i "+ iconUrl +" \"") + title + QString("\" \"") + message + QString("\"");
 				QProcess::execute(libnotifyCmd);
 				break;
 		}
@@ -186,7 +188,8 @@ void MainWindow::homeTimeLinesRecived(QList< Status > & statusList)
 	QList<Status>::const_iterator endIt = statusList.constEnd();
 	for(;it!=endIt; ++it){
 		if(!isStartMode){
-			notify(it->user.screenName, it->content, mediaMan->getImageLocalPathIfExist(it->user.profileImageUrl));
+			MainWindow::systemNotify(it->user.screenName, it->content,
+									 mediaMan->getImageLocalPathIfExist(it->user.profileImageUrl));
 		}
 		StatusWidget *wt = new StatusWidget(this);
 		wt->setCurrentStatus(*it);
@@ -217,7 +220,8 @@ void MainWindow::replyTimeLineRecived(QList< Status > & statusList)
 	
 	for(;it!=endIt; ++it){
 		if(!isStartMode){
-			notify(it->user.screenName, it->content, mediaMan->getImageLocalPathIfExist(it->user.profileImageUrl));
+			MainWindow::systemNotify(it->user.screenName, it->content,
+									 mediaMan->getImageLocalPathIfExist(it->user.profileImageUrl));
 		}
 		StatusWidget *wt = new StatusWidget(this);
 		wt->setCurrentStatus(*it);
@@ -240,44 +244,36 @@ void MainWindow::setDefaultDirection()
 	ui.tabs->widget(1)->setLayoutDirection((Qt::LayoutDirection)Settings::direction());
 // 	txtNewStatus->document()->firstBlock()->
 // 	inputLayout->setLayoutDirection((Qt::LayoutDirection)Settings::direction());
-	
+	txtNewStatus->setDefaultDirection((Qt::LayoutDirection)Settings::direction());
 }
 
 void MainWindow::error(QString & errMsg)
 {
-	notify(i18n("Transaction faild"), errMsg);
+	MainWindow::systemNotify(i18n("Transaction faild"), errMsg, APPNAME);
 }
 
-void MainWindow::postStatus()
-{
-	kDebug();
-	QString twit = prepareNewStatus();
-	statusBar()->showMessage(i18n("Posting New status..."));
-	txtNewStatus->setEnabled(false);
-	twitter->postNewStatus(twit);
-}
-
-QString MainWindow::prepareNewStatus()
+void MainWindow::postStatus(QString & status)
 {
 	kDebug();
 	//TODO will check for urls!
-	QString st = txtNewStatus->toPlainText();
-	if(st.size()>MAX_STATUS_SIZE){
+	if(status.size()>MAX_STATUS_SIZE){
 		QString err = i18n("Status text size is more than server limit size.");
 		error(err);
-		return QString();
+		return;
 	}
-	return st;
+	statusBar()->showMessage(i18n("Posting New status..."));
+	txtNewStatus->setEnabled(false);
+	twitter->postNewStatus(status);
 }
 
 void MainWindow::postingNewStatusDone(bool isError)
 {
 	if(!isError){
 		txtNewStatus->setText(QString());
-		notify("Success!", "New status posted");
+		MainWindow::systemNotify("Success!", "New status posted successfully", APPNAME);
 	}
 	txtNewStatus->setEnabled(true);
-	setTxtNewStatusDirection();
+	txtNewStatus->setDefaultDirection((Qt::LayoutDirection)Settings::direction());
 }
 
 bool MainWindow::saveStatuses(int count)
@@ -304,22 +300,7 @@ void MainWindow::prepareReply(QString &userName, uint statusId)
 	QString current = txtNewStatus->toPlainText();
 	txtNewStatus->setText("@"+userName + " " + current);
 	replyToStatusId = statusId;
-	setTxtNewStatusDirection();
-}
-
-void MainWindow::setTxtNewStatusDirection()
-{
-	QTextCursor c = txtNewStatus->textCursor();
-	QTextBlockFormat f = c.blockFormat();
-		
-	if (Settings::direction() == Qt::RightToLeft) {
-		f.setLayoutDirection(Qt::RightToLeft);	
-	} else {
-		f.setLayoutDirection(Qt::LeftToRight);
-	}
-	c.setBlockFormat(f);
-	txtNewStatus->setTextCursor(c);
-	txtNewStatus->setFocus(Qt::OtherFocusReason);
+	txtNewStatus->setDefaultDirection((Qt::LayoutDirection)Settings::direction());
 }
 
 void MainWindow::keyPressEvent(QKeyEvent * e)
@@ -337,5 +318,12 @@ void MainWindow::quitApp()
 {
 	deleteLater();
 }
+
+void MainWindow::abortPostNewStatus()
+{
+	kDebug();
+	twitter->abortPostNewStatus();
+}
+
 
 #include "mainwindow.moc"

@@ -14,7 +14,7 @@
 #include "ui_accounts_base.h"
 #include "datacontainers.h"
 
-#define MAX_STATUS_SIZE 140
+
 #define TIMEOUT 5000
 class Backend;
 class StatusTextEdit;
@@ -41,6 +41,8 @@ public:
      * Default Destructor
      */
 	virtual ~MainWindow();
+	
+	static void systemNotify(const QString title, const QString message, QString iconUrl);
 
 protected slots:
     void optionsPreferences();
@@ -52,17 +54,20 @@ protected slots:
 	void postingNewStatusDone(bool isError);
 	void prepareReply(QString &userName, uint statusId);
 
-	void notify(const QString &title, const QString &message, QString iconPath = QString());
+	void notify(const QString &message);
 	
-	void checkNewStatusCharactersCount();
+	void checkNewStatusCharactersCount(int numOfChars);
 	
-	void postStatus();
+// 	void postStatus();
+	void postStatus(QString &status);
 	
 	void error(QString &errMsg);
 	
 	void setUserImage(StatusWidget *widget);
 	
 	void quitApp();
+	
+	void abortPostNewStatus();
 	
 signals:
 	void sigSetUserImage(StatusWidget *widget);
@@ -73,8 +78,8 @@ protected:
 private:
     void setupActions();
 	void setDefaultDirection();
-	void setTxtNewStatusDirection();
-	QString prepareNewStatus();
+// 	void setTxtNewStatusDirection();
+// 	QString prepareNewStatus(QString newStatus=QString());
 	/**
 	 *    Will store @count count of current statuses
 	 * @param count 

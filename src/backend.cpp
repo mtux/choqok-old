@@ -44,7 +44,7 @@ Backend::~Backend()
 	logout();
 }
 
-void Backend::postNewStatus(QString & statusMessage, uint replyToStatusId)
+void Backend::postNewStatus(const QString & statusMessage, uint replyToStatusId)
 {
 	kDebug();
 	QUrl url("http://twitter.com/statuses/update.xml");
@@ -59,6 +59,7 @@ void Backend::postNewStatus(QString & statusMessage, uint replyToStatusId)
 	
 	QByteArray data = "status=";
 	data += QUrl::toPercentEncoding(statusMessage);
+// 	data += "&in_reply_to_status_id=" + QString::number(replyToStatusId);
 	data += "&source=choqoK";
 	
 	statusHttp.request(header, data);
@@ -214,7 +215,7 @@ QList<Status> * Backend::readTimeLineFromXml(QByteArray & buffer)
 	
 	if (root.tagName() != "statuses") {
 		QString err = i18n("Data returned from server corrupted!");
-		kDebug()<<"there no statuses tag in XML";
+		kDebug()<<"there no statuses tag in XML\t the XML is: \n"<<buffer.data();
 		emit sigError(err);
 		return 0;
 	}
@@ -222,7 +223,7 @@ QList<Status> * Backend::readTimeLineFromXml(QByteArray & buffer)
 		QString timeStr;
 		while (!node.isNull()) {
 			if (node.toElement().tagName() != "status") {
-				kDebug()<<"there no status tag in XML";
+				kDebug()<<"there no status tag in XML, maybe there is no new status!";
 				return statusList;
 			}
 				QDomNode node2 = node.firstChild();
@@ -274,3 +275,4 @@ void Backend::abortPostNewStatus()
 	statusHttp.abort();
 }
 
+#include "backend.moc"

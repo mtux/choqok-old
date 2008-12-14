@@ -22,6 +22,10 @@ SysTrayIcon::SysTrayIcon(QWidget* parent): KSystemTrayIcon(parent)
 	if(Settings::showMainWinOnStart()){
 		mainWin->show();
 	}
+	setupActions();
+	
+// 	connect(&quickWidget, SIGNAL(sigPostStatus(QString&)), mainWin, SLOT(postStatus(QString&)));
+// 	connect(&quickWidget, SIGNAL(rejected()), mainWin, SLOT(abortPostNewStatus()));
 }
 
 
@@ -36,6 +40,7 @@ void SysTrayIcon::setupActions()
 	newTwit->setText(i18n("Quick Twit"));
 	newTwit->setGlobalShortcutAllowed(true);
 	newTwit->setGlobalShortcut(KShortcut(Qt::ControlModifier+Qt::MetaModifier+Qt::Key_T));
+	connect(newTwit, SIGNAL(triggered( bool )), &quickWidget, SLOT(show()));
 	this->actionCollection()->addAction("choqok-new-quick-twit", newTwit);
 	this->contextMenu()->addAction(newTwit);
 }
@@ -45,4 +50,9 @@ void SysTrayIcon::quitApp()
 	qApp->quit();
 }
 
+void SysTrayIcon::postQuickTwit()
+{
+	quickWidget.show();
+}
 
+#include "systrayicon.moc"

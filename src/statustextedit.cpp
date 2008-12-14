@@ -15,6 +15,7 @@ StatusTextEdit::StatusTextEdit(QWidget *parent)
  : KTextEdit(parent)
 {
 	this->setAcceptRichText(false);
+	connect(this, SIGNAL(textChanged()), this, SLOT(setNumOfCharsLeft()));
 }
 
 
@@ -25,11 +26,27 @@ StatusTextEdit::~StatusTextEdit()
 void StatusTextEdit::keyPressEvent(QKeyEvent * e)
 {
 	if ((e->key() == Qt::Key_Return) || (e->key() == Qt::Key_Enter)) {
-		emit returnPressed();
+		QString txt = toPlainText();
+		emit returnPressed(txt);
 		e->accept();
 	} else{
 		QTextEdit::keyPressEvent(e);
 	}
 }
 
+void StatusTextEdit::setDefaultDirection(Qt::LayoutDirection dir)
+{
+	QTextCursor c = this->textCursor();
+	QTextBlockFormat f = c.blockFormat();
+	f.setLayoutDirection(dir);
+	c.setBlockFormat(f);
+	this->setTextCursor(c);
+}
 
+void StatusTextEdit::setNumOfCharsLeft()
+{
+	int remainChar = 140 - toPlainText().count();
+	emit charsLeft(remainChar);
+}
+
+#include "statustextedit.moc"

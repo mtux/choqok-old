@@ -58,3 +58,4 @@ QString MediaManagement::getImageLocalPathIfExist(const QString & remotePath)
 	return path;
 }
 
+#include "mediamanagement.moc"

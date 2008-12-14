@@ -6,6 +6,7 @@ set(choqok_SRCS
    statustextedit.cpp
    mediamanagement.cpp
    systrayicon.cpp
+   quicktwit.cpp
  )
 
 kde4_add_ui_files(choqok_SRCS mainwindow_base.ui prefs_base.ui status_base.ui accounts_base.ui)

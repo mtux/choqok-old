@@ -38,7 +38,7 @@ public:
 	
 public slots:
 // 	void updateTimeLines(TimeLineType type=All, int page=0);
-	void postNewStatus(QString &statusMessage, uint replyToStatusId=0);
+	void postNewStatus(const QString &statusMessage, uint replyToStatusId=0);
 	void requestTimeLine(TimeLineType type, int page=0);
 	void abortPostNewStatus();
 // 	void requestCurrentUser();

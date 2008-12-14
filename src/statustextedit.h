@@ -25,11 +25,17 @@ public:
 
     ~StatusTextEdit();
 	
+public slots:
+	void setDefaultDirection(Qt::LayoutDirection dir);
+	void setNumOfCharsLeft();
+	
 protected:
-	void keyPressEvent(QKeyEvent *e);
+	virtual void keyPressEvent(QKeyEvent *e);
 	
 signals:
-	void returnPressed();
+	void returnPressed(QString &txt);
+	void charsLeft(int count);
+// 	void aborted();
 };
 
 #endif
