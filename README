@@ -1,15 +1,16 @@
 Kwitter A KDE Twitter client.
 
 Author:
-	Mehrdad Momeny <mehrdad.momeny@gmail.com>
+	Mehrdad Momeny <mehrdad.momeny[AT]gmail.com>
+
 
 How To Build This Project
 -=-=-=-=-=-=-=-=-=-=-=-=-=
 
-cd <project_name_path>
+cd kwitter
 mkdir build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX=$KDEDIRS -DCMAKE_BUILD_TYPE=debugfull ..      <- do not forget the ..
+cmake -DCMAKE_INSTALL_PREFIX=$KDEDIRS ..      <- do not forget the ..
 make
 make install or su -c 'make install'
 
