@@ -4,7 +4,7 @@
 // Description: 
 //
 //
-// Author:  <>, (C) 2008
+// Author:  Mehrdad Momeny <mehrdad.momeny@gmail.com>, (C) 2008
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -15,7 +15,7 @@
 #include <ktextedit.h>
 
 /**
-	@author 
+	@author Mehrdad Momeny <mehrdad.momeny@gmail.com>
 */
 class StatusTextEdit : public KTextEdit
 {

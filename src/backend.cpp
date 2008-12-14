@@ -4,7 +4,7 @@
 // Description: 
 //
 //
-// Author:  <>, (C) 2008
+// Author:  Mehrdad Momeny <mehrdad.momeny@gmail.com>, (C) 2008
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -37,6 +37,10 @@ Backend::Backend(QObject* parent): QObject(parent)
 	monthes["Oct"] = 10;
 	monthes["Nov"] = 11;
 	monthes["Dec"] = 12;
+	
+	
+	connect(&statusHttp, SIGNAL(requestFinished( int, bool )), this, SLOT(postNewStatusFinished(int, bool)));
+	connect(&timelineHttp, SIGNAL(requestFinished( int, bool )), this, SLOT(requestTimelineFinished(int, bool)));
 }
 
 Backend::~Backend()
@@ -53,16 +57,15 @@ void Backend::postNewStatus(const QString & statusMessage, uint replyToStatusId)
 	header.setValue("Host", url.host());
 	header.setContentType("application/x-www-form-urlencoded");
 	
-	connect(&statusHttp, SIGNAL(done(bool)), this, SLOT(postNewStatusDone(bool)));
  	statusHttp.setHost(url.host(), url.port(80));
 	statusHttp.setUser(Settings::username(), Settings::password());
 	
 	QByteArray data = "status=";
 	data += QUrl::toPercentEncoding(statusMessage);
 // 	data += "&in_reply_to_status_id=" + QString::number(replyToStatusId);
-	data += "&source=choqoK";
+	data += "&source=choqok";
 	
-	statusHttp.request(header, data);
+	statusHttpNum = statusHttp.request(header, data);
 }
 
 void Backend::login()
@@ -84,26 +87,57 @@ void Backend::requestTimeLine(TimeLineType type, int page)
 		return;
 	}
 	QUrl url(urls[type]);
-	QHttp *timelineHttp = new QHttp(this);
-	timelineHttp->setHost(url.host(), url.port(80));
-	timelineHttp->setUser(Settings::username(), Settings::password());
+	timelineHttp.setHost(url.host(), url.port(80));
+	timelineHttp.setUser(Settings::username(), Settings::password());
 	QString path = url.toString() + (Settings::latestStatusId() ? "?since_id=" + QString::number(Settings::latestStatusId()) : "");
 	kDebug()<<"Latest status Id: "<<Settings::latestStatusId();
 	switch(type){
 		case HomeTimeLine:
-			connect(timelineHttp, SIGNAL(done( bool )), this, SLOT(homeTimeLineDone(bool)));
+// 			connect(&timelineHttp, SIGNAL(done( bool )), this, SLOT(homeTimeLineDone(bool)));
 			homeBuffer.open(QIODevice::WriteOnly);
-			timelineHttp->get( path, &homeBuffer);
+			homeTimelineHttpNum = timelineHttp.get( path, &homeBuffer);
 			break;
 		case ReplyTimeLine:
-			connect(timelineHttp, SIGNAL(done( bool )), this, SLOT(replyTimeLineDone(bool)));
+// 			connect(&timelineHttp, SIGNAL(done( bool )), this, SLOT(replyTimeLineDone(bool)));
 			replyBuffer.open(QIODevice::WriteOnly);
-			timelineHttp->get( path, &replyBuffer);
+			replyTimelineHttpNum = timelineHttp.get( path, &replyBuffer);
 			break;
 		default:
 			kDebug()<<"Unknown TimeLine Type";
 			break;
 	};
+}
+
+void Backend::requestTimelineFinished(int id, bool isError)
+{
+	kDebug()<<isError;
+	if(isError){
+		mLatestErrorString = getErrorString(qobject_cast<QHttp *>(sender()));
+		kDebug()<<mLatestErrorString;
+		return;
+	}
+	QByteArray tmp;
+	if(id == homeTimelineHttpNum){
+		tmp = homeBuffer.data();
+		homeBuffer.close();
+	} else if (id == replyTimelineHttpNum){
+		tmp = replyBuffer.data();
+		homeBuffer.close();
+	}
+	
+	QList<Status> *ptr = readTimeLineFromXml(tmp);
+	
+	if(id == homeTimelineHttpNum){
+		if(ptr)
+			emit homeTimeLineRecived(*ptr);
+		else
+			kDebug()<<"Null returned from Backend::readTimeLineFromXml()";
+	} else if (id == replyTimelineHttpNum){
+		if(ptr)
+			emit replyTimeLineRecived(*ptr);
+		else
+			kDebug()<<"Null returned from Backend::readTimeLineFromXml()";
+	}
 }
 
 void Backend::homeTimeLineDone(bool isError)
@@ -118,7 +152,6 @@ void Backend::homeTimeLineDone(bool isError)
 // 	homeBuffer.close();
 	QByteArray tmp = homeBuffer.data();
 	homeBuffer.close();
-	
 	QList<Status> *ptr = readTimeLineFromXml(tmp);
 	if(ptr)
 		emit homeTimeLineRecived(*ptr);
@@ -277,5 +310,19 @@ QString& Backend::latestErrorString()
 {
 	return mLatestErrorString;
 }
+
+void Backend::postNewStatusFinished(int id, bool isError)
+{
+	if(isError){
+		QString err = getErrorString(qobject_cast<QHttp *>(sender()));
+		kDebug()<<err;
+		mLatestErrorString = err;
+		emit sigPostNewStatusDone(true);
+	} else if(id == statusHttpNum){
+		kDebug();
+		emit sigPostNewStatusDone(false);
+	}
+}
+
 
 #include "backend.moc"

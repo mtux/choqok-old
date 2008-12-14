@@ -4,7 +4,7 @@
 // Description: 
 //
 //
-// Author:  <>, (C) 2008
+// Author:  Mehrdad Momeny <mehrdad.momeny@gmail.com>, (C) 2008
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -53,9 +53,11 @@ signals:
 // 	void directMessagesRecived(QList<Status> &statusList);
 	
 protected slots:
+	void requestTimelineFinished(int id, bool isError);
 	void homeTimeLineDone(bool isError);
 	void replyTimeLineDone(bool isError);
 	void postNewStatusDone(bool isError);
+	void postNewStatusFinished(int id, bool isError);
 	
 private:
 	QString getErrorString(QHttp *sender);
@@ -64,7 +66,14 @@ private:
 	QBuffer homeBuffer;
 	QBuffer replyBuffer;
 	QBuffer userIdBuffer;
+	
 	QHttp statusHttp;
+	int statusHttpNum;
+	
+	QHttp timelineHttp;
+	int homeTimelineHttpNum;
+	int replyTimelineHttpNum;
+	
 	QMap<QString, int> monthes;
 	QString mLatestErrorString;
 };

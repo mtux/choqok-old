@@ -4,7 +4,7 @@
 // Description: 
 //
 //
-// Author:  <>, (C) 2008
+// Author:  Mehrdad Momeny <mehrdad.momeny@gmail.com>, (C) 2008
 //
 // Copyright: See COPYING file that comes with this distribution
 //
