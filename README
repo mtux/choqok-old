@@ -8,15 +8,10 @@ Requirements to build:
      CMake 2.6
      KDE 4 library Development packages! (On Ubuntu is kdelibs5-dev)
 
-    To get latest snapshot:
-git clone git://github.com/mtux/choqok.git
 
-    To Update your copy:
-cd choqok
-git-pull
-
-How To Build This Project
+How To get latest snapshot and Build The Project
 -=-=-=-=-=-=-=-=-=-=-=-=-=
+git clone git://github.com/mtux/choqok.git
 cd choqok
 mkdir build
 cd build
@@ -28,3 +23,10 @@ to uninstall the project:
 make uninstall or su -c 'make uninstall'
 
 
+And To Update your copy:
+-=-=-=-=-=-=-=-=-=-=-=-=-=
+cd choqok
+git-pull
+cd build
+make
+sudo make install OR su -c 'make install'
