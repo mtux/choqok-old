@@ -1,4 +1,4 @@
-Kwitter A KDE Twitter client.
+choqoK A KDE 4 Twitter client.
 
 Author:
 	Mehrdad Momeny <mehrdad.momeny[AT]gmail.com>
@@ -6,8 +6,8 @@ Author:
 
 How To Build This Project
 -=-=-=-=-=-=-=-=-=-=-=-=-=
-
-cd kwitter
+git clone git://github.com/mtux/choqok.git
+cd choqok
 mkdir build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX=$KDEDIRS ..      <- do not forget the ..
