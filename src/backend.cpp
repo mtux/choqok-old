@@ -59,7 +59,7 @@ void Backend::postNewStatus(QString & statusMessage, uint replyToStatusId)
 	
 	QByteArray data = "status=";
 	data += QUrl::toPercentEncoding(statusMessage);
-	data += "&source=Fangorn";
+	data += "&source=Choqok";
 	
 	statusHttp.request(header, data);
 }
@@ -154,7 +154,7 @@ QString Backend::getErrorString(QHttp * sender)
 			errType = i18n("No error occured! ");
 			break;
 		case QHttp::HostNotFound:
-			errType = i18n("Host not found, ");
+// 			errType = i18n("Host not found, ");
 			break;
 		case QHttp::ConnectionRefused:
 			errType = i18n("Connection refused by server, please try again later. ");
@@ -163,7 +163,7 @@ QString Backend::getErrorString(QHttp * sender)
 			errType = i18n("Connection terminated unexpected, please try again later. ");
 			break;
 		case QHttp::Aborted:
-			errType = i18n("Aborted, ");
+// 			errType = i18n("Aborted, ");
 			break;
 		case QHttp::InvalidResponseHeader:
 			errType = i18n("Invalid response header, ");
@@ -173,7 +173,7 @@ QString Backend::getErrorString(QHttp * sender)
 			break;
 		case QHttp::UnknownError:
 		default:
-			errType = i18n("Unknown error occured, ");
+// 			errType = i18n("Unknown error occured, ");
 			break;
 	}
 	errType += sender->errorString();

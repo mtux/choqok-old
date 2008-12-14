@@ -33,6 +33,9 @@
     <entry name="loadTimeLineOnStart" type="Bool">
 	    <default>true</default>
     </entry>
+    <entry name="showMainWinOnStart" type="Bool">
+	    <default>true</default>
+    </entry>
   </group>
   <group name="Account">
     <entry name="username" type="String">

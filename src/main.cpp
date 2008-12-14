@@ -1,4 +1,5 @@
-#include "mainwindow.h"
+
+#include "systrayicon.h"
 #include <kapplication.h>
 #include <kaboutdata.h>
 #include <kcmdlineargs.h>
@@ -12,7 +13,7 @@ static const char version[] = "0.1";
 int main(int argc, char **argv)
 {
     KAboutData about("kwitter", 0, ki18n("Kwitter"), version, ki18n(description),
-                     KAboutData::License_GPL_V3, ki18n("(C) 2007 Mehrdad Momeny"), KLocalizedString(), 0, "mehrdad.momeny@gmail.com");
+                     KAboutData::License_GPL_V3, ki18n("(C) 2008 Mehrdad Momeny"), KLocalizedString(), 0, "mehrdad.momeny@gmail.com");
     about.addAuthor( ki18n("Mehrdad Momeny"), KLocalizedString(), "mehrdad.momeny@gmail.com" );
     KCmdLineArgs::init(argc, argv, &about);
 
@@ -21,8 +22,13 @@ int main(int argc, char **argv)
 //     KCmdLineArgs::addCmdLineOptions(options);
     KApplication app;
 
-	MainWindow *widget = new MainWindow;
-    widget->show();
+	if(QSystemTrayIcon::isSystemTrayAvailable()){
+		SysTrayIcon *sysIcon = new SysTrayIcon;
+		sysIcon->show();
+	} else {
+		MainWindow *mainWin = new MainWindow;
+		mainWin->show();
+	}
 
 
     return app.exec();

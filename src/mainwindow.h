@@ -27,7 +27,6 @@ class MediaManagement;
  *
  * @short Main window class
  * @author Mehrdad Momeny <mehrdad.momeny@gmail.com>
- * @version 0.1
  */
 class MainWindow : public KXmlGuiWindow
 {
@@ -93,6 +92,9 @@ private:
 	QList<StatusWidget*> listReplyStatus;
 	MediaManagement *mediaMan;
 	uint replyToStatusId;
+	
+	bool isStartMode;//used for Notify, if true: notify will not send for any or all new twits, if false will send.
+	
 //     KToggleAction *m_toolbarAction;
 //     KToggleAction *m_statusbarAction;
 };

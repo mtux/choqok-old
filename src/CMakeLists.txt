@@ -5,6 +5,7 @@ set(kwitter_SRCS
    backend.cpp
    statustextedit.cpp
    mediamanagement.cpp
+   systrayicon.cpp
  )
 
 kde4_add_ui_files(kwitter_SRCS mainwindow_base.ui prefs_base.ui status_base.ui accounts_base.ui)

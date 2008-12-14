@@ -85,7 +85,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::setupActions()
 {
-	KStandardAction::quit(qApp, SLOT(closeAllWindows()), actionCollection());
+	KStandardAction::quit(qApp, SLOT(quit()), actionCollection());
 
 	KStandardAction::preferences(this, SLOT(optionsPreferences()), actionCollection());
 
@@ -149,16 +149,16 @@ void MainWindow::notify(const QString &title, const QString &message, QString ic
 		statusBar()->showMessage( title+ " " + message, TIMEOUT);
 	}
 	
-	switch(Settings::notifyType()){
-		case 0:
-			break;
-		case 1:
-			break;
-		case 2://Libnotify!
-			QString libnotifyCmd = QString("notify-send -t ") + QString::number((int)Settings::notifyInterval()*1000) + QString(" -u low -i "+ iconUrl +" \"") + title + QString("\" \"") + message + QString("\"");
-			QProcess::execute(libnotifyCmd);
-			break;
-	}
+		switch(Settings::notifyType()){
+			case 0:
+				break;
+			case 1:
+				break;
+			case 2://Libnotify!
+				QString libnotifyCmd = QString("notify-send -t ") + QString::number((int)Settings::notifyInterval()*1000) + QString(" -u low -i "+ iconUrl +" \"") + title + QString("\" \"") + message + QString("\"");
+				QProcess::execute(libnotifyCmd);
+				break;
+		}
 }
 
 void MainWindow::updateTimeLines()
@@ -166,6 +166,10 @@ void MainWindow::updateTimeLines()
 	kDebug();
 	twitter->requestTimeLine(Backend::HomeTimeLine);
 	twitter->requestTimeLine(Backend::ReplyTimeLine);
+	if(Settings::latestStatusId()==0)
+		isStartMode = true;
+	else
+		isStartMode = false;
 	statusBar()->showMessage(i18n("Loading timelines..."));
 }
 
@@ -181,17 +185,15 @@ void MainWindow::homeTimeLinesRecived(QList< Status > & statusList)
 	QList<Status>::const_iterator it = statusList.constBegin();
 	QList<Status>::const_iterator endIt = statusList.constEnd();
 	for(;it!=endIt; ++it){
-// 		if( it->statusId > Settings::latestStatusId()){
-// 			kDebug()<<"StatusId: "<<it->statusId<<"UserId: "<<it->user.userId;
-			notify(it->user.screenName, it->content, "userImageAddress");
-			StatusWidget *wt = new StatusWidget(this);
-			wt->setCurrentStatus(*it);
-			emit sigSetUserImage(wt);
-			connect(wt, SIGNAL(sigReply(QString&, uint)), this, SLOT(prepareReply(QString&, uint)));
-			listHomeStatus.append(wt);
-			ui.frameHome->layout()->addWidget(wt);
-// 			ui.tabs->widget(0)->layout()->addWidget(wt);
-// 		}
+		if(isStartMode){
+			notify(it->user.screenName, it->content, mediaMan->getImageLocalPathIfExist(it->user.profileImageUrl));
+		}
+		StatusWidget *wt = new StatusWidget(this);
+		wt->setCurrentStatus(*it);
+		emit sigSetUserImage(wt);
+		connect(wt, SIGNAL(sigReply(QString&, uint)), this, SLOT(prepareReply(QString&, uint)));
+		listHomeStatus.append(wt);
+		ui.frameHome->layout()->addWidget(wt);
 	}
 	uint latestId = statusList.first().statusId;
 	if(latestId > Settings::latestStatusId()){
@@ -214,15 +216,15 @@ void MainWindow::replyTimeLineRecived(QList< Status > & statusList)
 	QList<Status>::const_iterator endIt = statusList.constEnd();
 	
 	for(;it!=endIt; ++it){
-// 		if( it->statusId > Settings::latestStatusId()){
-			notify(it->user.screenName, it->content, "userImageAddress");
-			StatusWidget *wt = new StatusWidget(this);
-			wt->setCurrentStatus(*it);
-			emit sigSetUserImage(wt);
-			connect(wt, SIGNAL(sigReply(QString&, uint)), this, SLOT(prepareReply(QString&, uint)));
-			listReplyStatus.append(wt);
-			ui.frameReply->layout()->addWidget(wt);
-// 		}
+		if(isStartMode){
+			notify(it->user.screenName, it->content, mediaMan->getImageLocalPathIfExist(it->user.profileImageUrl));
+		}
+		StatusWidget *wt = new StatusWidget(this);
+		wt->setCurrentStatus(*it);
+		emit sigSetUserImage(wt);
+		connect(wt, SIGNAL(sigReply(QString&, uint)), this, SLOT(prepareReply(QString&, uint)));
+		listReplyStatus.append(wt);
+		ui.frameReply->layout()->addWidget(wt);
 	}
 	uint latestId = statusList.first().statusId;
 	if(latestId > Settings::latestStatusId()){
@@ -291,7 +293,7 @@ bool MainWindow::saveStatuses(int count)
 
 void MainWindow::setUserImage(StatusWidget * widget)
 {
-	widget->setUserImage(mediaMan->getImageLocalPath(widget->currentStatus().user.screenName, widget->currentStatus().user.profileImageUrl, this));
+	widget->setUserImage(mediaMan->getImageLocalPathDownloadIfNotExist(widget->currentStatus().user.screenName, widget->currentStatus().user.profileImageUrl, this));
 }
 
 void MainWindow::prepareReply(QString &userName, uint statusId)
