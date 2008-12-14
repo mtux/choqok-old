@@ -11,7 +11,7 @@ git clone git://github.com/mtux/choqok.git
 cd choqok
 mkdir build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX=$KDEDIRS ..      <- do not forget the ..
+cmake ..      <- do not forget the ..
 make
 make install or su -c 'make install'
 
