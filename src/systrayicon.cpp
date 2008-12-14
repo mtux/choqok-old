@@ -29,6 +29,7 @@ SysTrayIcon::SysTrayIcon(QWidget* parent): KSystemTrayIcon(parent)
 	
 	isQuickActivated = false;
 	setupActions();
+	quickWidget = new QuickTwit;
 	
 	connect(this, SIGNAL(activated( QSystemTrayIcon::ActivationReason )),
 			 this, SLOT(sysTrayActivated(QSystemTrayIcon::ActivationReason)));
@@ -71,15 +72,11 @@ void SysTrayIcon::quitApp()
 
 void SysTrayIcon::postQuickTwit()
 {
-	if(isQuickActivated){
-		quickWidget->close();
-		isQuickActivated = false;
+	if(quickWidget->isVisible()){
+		quickWidget->hide();
 	}
 	else{
-		quickWidget = new QuickTwit;
-		quickWidget->setAttribute(Qt::WA_DeleteOnClose);
 		quickWidget->show();
-		isQuickActivated = true;
 	}
 }
 

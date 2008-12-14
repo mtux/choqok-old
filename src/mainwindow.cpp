@@ -48,21 +48,20 @@ MainWindow::MainWindow()
 	txtNewStatus->setMaximumHeight(70);
 	txtNewStatus->setFocus(Qt::OtherFocusReason);
 	txtNewStatus->setTabChangesFocus ( true );
-	ui.inputLayout->addWidget(txtNewStatus);
+	ui.inputFrame->layout()->addWidget(txtNewStatus);
 	
 	setCentralWidget(mainWidget);
     // then, setup our actions
     setupActions();
 	statusBar()->show();
 	setupGUI();
-	
-	setDefaultDirection();
-	
+		
 	if(Settings::loadTimeLineOnStart())
 		updateTimeLines();
 	timelineTimer = new QTimer(this);
-	timelineTimer->setInterval(Settings::updateInterval()*60000);
 	timelineTimer->start();
+	
+	settingsChanged();
 	
 	mediaMan = new MediaManagement(this);
 	
@@ -71,6 +70,7 @@ MainWindow::MainWindow()
 	connect(txtNewStatus, SIGNAL(returnPressed(QString&)), this, SLOT(postStatus(QString&)));
 	connect(twitter, SIGNAL(sigError(QString&)), this, SLOT(error(QString&)));
 	connect(this, SIGNAL(sigSetUserImage(StatusWidget*)), this, SLOT(setUserImage(StatusWidget*)));
+
 }
 
 MainWindow::~MainWindow()
@@ -149,6 +149,10 @@ void MainWindow::settingsChanged()
 // 	twitter->requestCurrentUser();
 	setDefaultDirection();
 	timelineTimer->setInterval(Settings::updateInterval()*60000);
+	if(Settings::hideTwitField()){
+		ui.inputFrame->hide();
+	} else
+		ui.inputFrame->show();
 }
 
 void MainWindow::notify(const QString &message)

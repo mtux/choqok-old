@@ -2,6 +2,7 @@
 <kpartgui name="kwitter" version="3">
 <MenuBar>
   <Menu name="file"><text>File</text>
+	  <Action name="choqok_new_twit" />
 	  <Action name="update_timeline" />
   </Menu>
 </MenuBar>
