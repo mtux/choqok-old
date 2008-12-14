@@ -41,7 +41,8 @@ MainWindow::MainWindow()
     // tell the KXmlGuiWindow that this is indeed the main widget
 	mainWidget = new QWidget;
     ui.setupUi(mainWidget);
-	
+	ui.homeLayout->setDirection(QBoxLayout::TopToBottom);
+	ui.replyLayout->setDirection(QBoxLayout::TopToBottom);
 	txtNewStatus = new StatusTextEdit(mainWidget);
 	txtNewStatus->setObjectName("txtNewStatus");
 	txtNewStatus->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
@@ -105,6 +106,15 @@ void MainWindow::setupActions()
 	newTwit->setShortcut(Qt::ControlModifier | Qt::Key_T);
 	newTwit->setGlobalShortcutAllowed(true);
 	newTwit->setGlobalShortcut(KShortcut(Qt::ControlModifier | Qt::MetaModifier | Qt::Key_T));
+	
+	KAction *toggleTwitField = new KAction(this);
+	toggleTwitField->setShortcut(Qt::ControlModifier | Qt::Key_E);
+	if(ui.inputFrame->isVisible())
+		toggleTwitField->setText(i18n("Hide twit box"));
+	else
+		toggleTwitField->setText(i18n("Show twit box"));
+	actionCollection()->addAction(QLatin1String("toggle_twit_field"), toggleTwitField);
+	connect(toggleTwitField, SIGNAL(triggered( bool )), this, SLOT(actToggleTwitFieldVisible()));
 }
 
 void MainWindow::optionsPreferences()
@@ -186,6 +196,17 @@ void MainWindow::updateTimeLines()
 	statusBar()->showMessage(i18n("Loading timelines..."));
 }
 
+void MainWindow::updateHomeTimeLine()
+{
+	kDebug();
+	timelineTimer->start();
+	twitter->requestTimeLine(Backend::HomeTimeLine);
+	if(Settings::latestStatusId()==0)
+		isStartMode = true;
+	else
+		isStartMode = false;
+}
+
 void MainWindow::homeTimeLinesRecived(QList< Status > & statusList)
 {
 	kDebug();
@@ -197,7 +218,7 @@ void MainWindow::homeTimeLinesRecived(QList< Status > & statusList)
 		return;
 	} else {
 		kDebug()<<statusList.count()<<" Statuses received.";
-		addNewStatusesToUi(statusList, ui.frameHome->layout());
+		addNewStatusesToUi(statusList, ui.homeLayout);
 	}
 }
 
@@ -211,13 +232,13 @@ void MainWindow::replyTimeLineRecived(QList< Status > & statusList)
 		return;
 	}else {
 		kDebug()<<statusList.count()<<" Statuses received.";
-		addNewStatusesToUi(statusList, ui.frameReply->layout());
+		addNewStatusesToUi(statusList, ui.replyLayout);
 	}
 	
 	
 }
 
-void MainWindow::addNewStatusesToUi(QList< Status > & statusList, QLayout * layoutToAddStatuses)
+void MainWindow::addNewStatusesToUi(QList< Status > & statusList, QBoxLayout * layoutToAddStatuses)
 {
 	kDebug();
 	QList<Status>::const_iterator it = statusList.constBegin();
@@ -233,9 +254,9 @@ void MainWindow::addNewStatusesToUi(QList< Status > & statusList, QLayout * layo
 		emit sigSetUserImage(wt);
 		connect(wt, SIGNAL(sigReply(QString&, uint)), this, SLOT(prepareReply(QString&, uint)));
 		listReplyStatus.append(wt);
-		layoutToAddStatuses->addWidget(wt);
+		layoutToAddStatuses->insertWidget(0, wt);
 	}
-	uint latestId = statusList.first().statusId;
+	uint latestId = statusList.last().statusId;
 	if(latestId > Settings::latestStatusId()){
 		kDebug()<<"Latest sets to: "<<latestId;
 		Settings::setLatestStatusId(latestId);
@@ -274,6 +295,7 @@ void MainWindow::postStatus(QString & status)
 void MainWindow::postingNewStatusDone(bool isError)
 {
 	if(!isError){
+		updateHomeTimeLine();
 		txtNewStatus->setText(QString());
 		txtNewStatus->clearContentsAndSetDirection((Qt::LayoutDirection)Settings::direction());
 		MainWindow::systemNotify("Success!", "New status posted successfully", APPNAME);
@@ -334,6 +356,18 @@ void MainWindow::abortPostNewStatus()
 {
 	kDebug();
 	twitter->abortPostNewStatus();
+}
+
+void MainWindow::actToggleTwitFieldVisible()
+{
+	if(ui.inputFrame->isVisible()){
+		ui.inputFrame->hide();
+		actionCollection()->action("toggle_twit_field")->setText(i18n("Hide twit box"));
+	}
+	else {
+		ui.inputFrame->show();
+		actionCollection()->action("toggle_twit_field")->setText(i18n("Show twit box"));
+	}
 }
 
 

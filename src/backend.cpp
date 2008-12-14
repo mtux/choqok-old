@@ -120,19 +120,17 @@ void Backend::requestTimelineFinished(int id, bool isError)
 	if(id == homeTimelineHttpNum){
 		tmp = homeBuffer.data();
 		homeBuffer.close();
-	} else if (id == replyTimelineHttpNum){
-		tmp = replyBuffer.data();
-		homeBuffer.close();
-	}
-	
-	QList<Status> *ptr = readTimeLineFromXml(tmp);
-	
-	if(id == homeTimelineHttpNum){
+		
+		QList<Status> *ptr = readTimeLineFromXml(tmp);
 		if(ptr)
 			emit homeTimeLineRecived(*ptr);
 		else
 			kDebug()<<"Null returned from Backend::readTimeLineFromXml()";
 	} else if (id == replyTimelineHttpNum){
+		tmp = replyBuffer.data();
+		homeBuffer.close();
+		
+		QList<Status> *ptr = readTimeLineFromXml(tmp);
 		if(ptr)
 			emit replyTimeLineRecived(*ptr);
 		else
@@ -296,7 +294,7 @@ QList<Status> * Backend::readTimeLineFromXml(QByteArray & buffer)
 				node = node.nextSibling();
 				QDateTime time = dateFromString(timeStr);
 				status.creationDateTime = QDateTime(time.date(), time.time(), Qt::UTC);
-				statusList->append(status);
+				statusList->insert(0, status);
 			}
 	return statusList;
 }

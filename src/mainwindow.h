@@ -45,9 +45,11 @@ public:
 	static void systemNotify(const QString title, const QString message, QString iconUrl);
 public slots:
 	void updateTimeLines();
+	void updateHomeTimeLine();
 protected slots:
     void optionsPreferences();
 	void settingsChanged();
+	void actToggleTwitFieldVisible();
 	
 	void homeTimeLinesRecived(QList<Status> &statusList);
 	void replyTimeLineRecived(QList<Status> &statusList);
@@ -78,7 +80,7 @@ protected:
 private:
     void setupActions();
 	void setDefaultDirection();
-	void addNewStatusesToUi(QList< Status > & statusList, QLayout *layoutToAddStatuses);
+	void addNewStatusesToUi(QList< Status > & statusList, QBoxLayout *layoutToAddStatuses);
 // 	void setTxtNewStatusDirection();
 // 	QString prepareNewStatus(QString newStatus=QString());
 	/**

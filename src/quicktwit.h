@@ -39,7 +39,7 @@ protected:
 // 	void keyPressEvent(QKeyEvent *e);
 	
 signals:
-// 	void sigPostStatus();
+	void sigStatusUpdated();
 	
 private:
 	StatusTextEdit *txtStatus;
