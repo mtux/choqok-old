@@ -86,7 +86,7 @@ MainWindow::~MainWindow()
 void MainWindow::setupActions()
 {
 	KStandardAction::quit(qApp, SLOT(quit()), actionCollection());
-
+	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(quitApp()));
 	KStandardAction::preferences(this, SLOT(optionsPreferences()), actionCollection());
 
 	KAction *actUpdate = new KAction(KIcon("view-refresh"), i18n("Update timeline"), this);
@@ -145,7 +145,7 @@ void MainWindow::settingsChanged()
 void MainWindow::notify(const QString &title, const QString &message, QString iconUrl)
 {
 	if(iconUrl.isEmpty()){
-		iconUrl = "kwitter";
+		iconUrl = "choqok";
 		statusBar()->showMessage( title+ " " + message, TIMEOUT);
 	}
 	
@@ -185,7 +185,7 @@ void MainWindow::homeTimeLinesRecived(QList< Status > & statusList)
 	QList<Status>::const_iterator it = statusList.constBegin();
 	QList<Status>::const_iterator endIt = statusList.constEnd();
 	for(;it!=endIt; ++it){
-		if(isStartMode){
+		if(!isStartMode){
 			notify(it->user.screenName, it->content, mediaMan->getImageLocalPathIfExist(it->user.profileImageUrl));
 		}
 		StatusWidget *wt = new StatusWidget(this);
@@ -216,7 +216,7 @@ void MainWindow::replyTimeLineRecived(QList< Status > & statusList)
 	QList<Status>::const_iterator endIt = statusList.constEnd();
 	
 	for(;it!=endIt; ++it){
-		if(isStartMode){
+		if(!isStartMode){
 			notify(it->user.screenName, it->content, mediaMan->getImageLocalPathIfExist(it->user.profileImageUrl));
 		}
 		StatusWidget *wt = new StatusWidget(this);
@@ -293,7 +293,9 @@ bool MainWindow::saveStatuses(int count)
 
 void MainWindow::setUserImage(StatusWidget * widget)
 {
-	widget->setUserImage(mediaMan->getImageLocalPathDownloadIfNotExist(widget->currentStatus().user.screenName, widget->currentStatus().user.profileImageUrl, this));
+	QString imgPath = mediaMan->getImageLocalPathDownloadIfNotExist(widget->currentStatus().user.screenName,
+			 widget->currentStatus().user.profileImageUrl, this);
+	widget->setUserImage(imgPath);
 }
 
 void MainWindow::prepareReply(QString &userName, uint statusId)
@@ -329,6 +331,11 @@ void MainWindow::keyPressEvent(QKeyEvent * e)
 			twitter->abortPostNewStatus();
 		}
 	}
+}
+
+void MainWindow::quitApp()
+{
+	deleteLater();
 }
 
 #include "mainwindow.moc"

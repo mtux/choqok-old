@@ -22,7 +22,7 @@ class StatusWidget;
 class QTimer;
 class MediaManagement;
 /**
- * This class serves as the main window for Kwitter.  It handles the
+ * This class serves as the main window for choqoK.  It handles the
  * menus, toolbars, and status bars.
  *
  * @short Main window class
@@ -61,6 +61,8 @@ protected slots:
 	void error(QString &errMsg);
 	
 	void setUserImage(StatusWidget *widget);
+	
+	void quitApp();
 	
 signals:
 	void sigSetUserImage(StatusWidget *widget);

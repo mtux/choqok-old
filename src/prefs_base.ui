@@ -146,6 +146,15 @@
    <header>knuminput.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>kcfg_updateInterval</tabstop>
+  <tabstop>kcfg_notifyType</tabstop>
+  <tabstop>kcfg_notifyInterval</tabstop>
+  <tabstop>kcfg_isSaveStatus</tabstop>
+  <tabstop>kcfg_saveStatusCount</tabstop>
+  <tabstop>kcfg_showMainWinOnStart</tabstop>
+  <tabstop>kcfg_loadTimeLineOnStart</tabstop>
+ </tabstops>
  <includes>
   <include location="local" >kcolorbutton.h</include>
  </includes>

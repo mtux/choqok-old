@@ -104,6 +104,11 @@
    <header>klineedit.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>kcfg_username</tabstop>
+  <tabstop>kcfg_password</tabstop>
+  <tabstop>kcfg_direction</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

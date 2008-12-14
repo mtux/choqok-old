@@ -14,8 +14,8 @@
 
 #include <QObject>
 
-#define DATA_DIR KStandardDirs::locateLocal("data", "kwitter")
-#define MEDIA_DIR KStandardDirs::locateLocal("data", "kwitter/userpics", true)
+#define DATA_DIR KStandardDirs::locateLocal("data", "choqok")
+#define MEDIA_DIR KStandardDirs::locateLocal("data", "choqok/media", true)
 
 class KConfig;
 class KConfigGroup;

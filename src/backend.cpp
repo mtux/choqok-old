@@ -59,7 +59,7 @@ void Backend::postNewStatus(QString & statusMessage, uint replyToStatusId)
 	
 	QByteArray data = "status=";
 	data += QUrl::toPercentEncoding(statusMessage);
-	data += "&source=Choqok";
+	data += "&source=choqoK";
 	
 	statusHttp.request(header, data);
 }
@@ -87,7 +87,7 @@ void Backend::requestTimeLine(TimeLineType type, int page)
 	timelineHttp->setHost(url.host(), url.port(80));
 	timelineHttp->setUser(Settings::username(), Settings::password());
 	QString path = url.toString() + (Settings::latestStatusId() ? "?since_id=" + QString::number(Settings::latestStatusId()) : "");
-	kDebug()<<"Path is: "<<path<<"\tLatest status Id: "<<Settings::latestStatusId();
+	kDebug()<<"Latest status Id: "<<Settings::latestStatusId();
 	switch(type){
 		case HomeTimeLine:
 			connect(timelineHttp, SIGNAL(done( bool )), this, SLOT(homeTimeLineDone(bool)));

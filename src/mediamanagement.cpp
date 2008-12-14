@@ -37,8 +37,8 @@ QString MediaManagement::getImageLocalPathDownloadIfNotExist(const QString &user
 // 	kDebug();
 	QString path = map->readEntry(remotePath, QString());
 	if(path.isEmpty()){
-		QString mediaDir = MEDIA_DIR;
-		path = mediaDir + "/" + username;
+// 		QString mediaDir = MEDIA_DIR;
+		path = DATA_DIR + "/" + username;
 		if(KIO::NetAccess::download(remotePath, path, window)){
 			map->writeEntry(remotePath, path);
 			return path;
@@ -54,7 +54,7 @@ QString MediaManagement::getImageLocalPathDownloadIfNotExist(const QString &user
 
 QString MediaManagement::getImageLocalPathIfExist(const QString & remotePath)
 {
-	QString path = map->readEntry(remotePath, QString());
+	QString path = map->readEntry(remotePath, QString(" "));
 	return path;
 }
 

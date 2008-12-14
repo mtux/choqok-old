@@ -1,4 +1,4 @@
-set(kwitter_SRCS
+set(choqok_SRCS
    mainwindow.cpp
    main.cpp
    statuswidget.cpp
@@ -8,18 +8,18 @@ set(kwitter_SRCS
    systrayicon.cpp
  )
 
-kde4_add_ui_files(kwitter_SRCS mainwindow_base.ui prefs_base.ui status_base.ui accounts_base.ui)
+kde4_add_ui_files(choqok_SRCS mainwindow_base.ui prefs_base.ui status_base.ui accounts_base.ui)
 
-kde4_add_kcfg_files(kwitter_SRCS settings.kcfgc )
+kde4_add_kcfg_files(choqok_SRCS settings.kcfgc )
 
-kde4_add_executable(kwitter ${kwitter_SRCS})
+kde4_add_executable(choqok ${choqok_SRCS})
 
-target_link_libraries(kwitter ${KDE4_KDEUI_LIBS} ${KDE4_KIO_LIBS})
+target_link_libraries(choqok ${KDE4_KDEUI_LIBS} ${KDE4_KIO_LIBS})
 
-install(TARGETS kwitter DESTINATION ${BIN_INSTALL_DIR} )
+install(TARGETS choqok DESTINATION ${BIN_INSTALL_DIR} )
 
 ########### install files ###############
 
-install( FILES kwitter.desktop  DESTINATION ${XDG_APPS_INSTALL_DIR} )
-install( FILES kwitter.kcfg  DESTINATION  ${KCFG_INSTALL_DIR} )
-install( FILES kwitterui.rc  DESTINATION  ${DATA_INSTALL_DIR}/kwitter )
+install( FILES choqok.desktop  DESTINATION ${XDG_APPS_INSTALL_DIR} )
+install( FILES choqok.kcfg  DESTINATION  ${KCFG_INSTALL_DIR} )
+install( FILES choqokui.rc  DESTINATION  ${DATA_INSTALL_DIR}/choqok )
