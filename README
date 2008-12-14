@@ -4,6 +4,9 @@ A KDE 4 Twitter client.
 Author:
 	Mehrdad Momeny <mehrdad.momeny[AT]gmail.com>
 
+Requirements to build:
+     CMake 2.6
+     KDE 4 library Development packages! (On Ubuntu is kdelibs5-dev)
 
 How To Build This Project
 -=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -13,7 +16,7 @@ mkdir build
 cd build
 cmake ..      <- do not forget the ..
 make
-make install or su -c 'make install'
+sudo make install OR su -c 'make install'
 
 to uninstall the project:
 make uninstall or su -c 'make uninstall'
