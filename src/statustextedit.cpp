@@ -41,6 +41,7 @@ void StatusTextEdit::setDefaultDirection(Qt::LayoutDirection dir)
 	f.setLayoutDirection(dir);
 	c.setBlockFormat(f);
 	this->setTextCursor(c);
+	this->setFocus(Qt::OtherFocusReason);
 }
 
 void StatusTextEdit::setNumOfCharsLeft()

@@ -285,6 +285,8 @@ void MainWindow::postingNewStatusDone(bool isError)
 	}
 	txtNewStatus->setEnabled(true);
 	txtNewStatus->setDefaultDirection((Qt::LayoutDirection)Settings::direction());
+	if(Settings::hideTwitField())
+		ui.inputFrame->hide();
 }
 
 bool MainWindow::saveStatuses(int count)
@@ -312,6 +314,8 @@ void MainWindow::prepareReply(QString &userName, uint statusId)
 	txtNewStatus->setText("@"+userName + " " + current);
 	replyToStatusId = statusId;
 	txtNewStatus->setDefaultDirection((Qt::LayoutDirection)Settings::direction());
+	if(!ui.inputFrame->isVisible())
+		ui.inputFrame->show();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent * e)

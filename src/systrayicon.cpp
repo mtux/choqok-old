@@ -55,6 +55,9 @@ void SysTrayIcon::setupActions()
 	connect(newTwit, SIGNAL(triggered( bool )), this, SLOT(postQuickTwit()));
 	this->contextMenu()->addAction(newTwit);
 	
+	contextMenu()->addAction(mainWin->actionCollection()->action("update_timeline"));
+	contextMenu()->addSeparator();
+	
 	KAction *showMain = new KAction(this);
 	if(mainWin->isVisible())
 		showMain->setText(i18n("Minimize"));
