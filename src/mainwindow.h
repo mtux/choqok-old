@@ -124,6 +124,8 @@ private:
 	bool isStartMode;//used for Notify, if true: notify will not send for any or all new twits, if false will send.
 	
 	int unreadStatusCount;
+	short unreadStatusInHome;
+	short unreadStatusInReply;
 };
 
 #endif 

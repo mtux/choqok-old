@@ -220,8 +220,10 @@ void MainWindow::homeTimeLinesRecived(QList< Status > & statusList)
 		kDebug()<<count<<" Statuses received.";
 		addNewStatusesToUi(statusList, ui.homeLayout, &listHomeStatus);
 		ui.homeScroll->verticalScrollBar()->setSliderPosition ( 0 );
-		if(!isStartMode)
-			ui.tabs->setTabText(0, i18n("H&ome(%1)", count));
+		if(!isStartMode){
+			unreadStatusInHome+=count;
+			ui.tabs->setTabText(0, i18n("Home(%1)", unreadStatusInHome));
+		}
 	}
 }
 
@@ -238,7 +240,10 @@ void MainWindow::replyTimeLineRecived(QList< Status > & statusList)
 		kDebug()<<count<<" Statuses received.";
 		addNewStatusesToUi(statusList, ui.replyLayout, &listReplyStatus, Backend::ReplyTimeLine);
 		ui.replyScroll->verticalScrollBar()->setSliderPosition ( 0 );
-		ui.tabs->setTabText(1, i18n("&Reply(%1)", count));
+		if(!isStartMode){
+			unreadStatusInReply+=count;
+			ui.tabs->setTabText(1, i18n("Reply(%1)", unreadStatusInReply));
+		}
 	}
 }
 
@@ -503,14 +508,14 @@ void MainWindow::checkUnreadStatuses(int numOfNewStatusesReciened)
 void MainWindow::setUnreadStatusesToReadState()
 {
 	kDebug();
-	ui.tabs->setTabText(0, i18n("H&ome"));
-	ui.tabs->setTabText(1, i18n("&Reply"));
+	ui.tabs->setTabText(0, i18n("Home"));
+	ui.tabs->setTabText(1, i18n("Reply"));
 	int count = listUnreadStatuses.count();
 	for(int i=0;i<count; ++i){
 		listUnreadStatuses[i]->setRead();
 	}
 	listUnreadStatuses.clear();
-	unreadStatusCount = 0;
+	unreadStatusCount = unreadStatusInReply = unreadStatusInHome = 0;
 	emit sigSetUnread(unreadStatusCount);
 }
 
