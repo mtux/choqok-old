@@ -33,6 +33,9 @@
     <entry name="latestStatusId" type="UInt">
 	    <default>0</default>
     </entry>
+    <entry name="isSmilysEnabled" type="Bool">
+	    <default>true</default>
+    </entry>
     <entry name="showMainWinOnStart" type="Bool">
 	    <default>true</default>
     </entry>

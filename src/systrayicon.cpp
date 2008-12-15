@@ -16,6 +16,7 @@
 #include <QMenu>
 #include <QPainter>
 #include <KColorScheme>
+#include <QProcess>
 
 SysTrayIcon::SysTrayIcon(QWidget* parent): KSystemTrayIcon(parent)
 {
@@ -23,7 +24,7 @@ SysTrayIcon::SysTrayIcon(QWidget* parent): KSystemTrayIcon(parent)
 	
 	mainWin = new MainWindow;
 	
-	m_defaultIcon = KIcon("choqok").pixmap(22);
+	m_defaultIcon = KIcon("choqok").pixmap(48);
 	
 	setIcon(m_defaultIcon);
 	
@@ -178,5 +179,18 @@ void SysTrayIcon::slotSetUnread(int unread)
 	}
 }
 
+void SysTrayIcon::systemNotify(const QString title, const QString message, QString iconUrl)
+{
+	switch(Settings::notifyType()){
+		case 0:
+			break;
+		case 1://KNotify
+			break;
+		case 2://Libnotify!
+			QString libnotifyCmd = QString("notify-send -t ") + QString::number(Settings::notifyInterval()*1000) + QString(" -u low -i "+ iconUrl +" \"") + title + QString("\" \"") + message + QString("\"");
+			QProcess::execute(libnotifyCmd);
+			break;
+	}
+}
 
 #include "systrayicon.moc"

@@ -114,10 +114,38 @@ void StatusWidget::requestDestroy()
 QString StatusWidget::prepareStatus(const QString &text, const int &replyStatusId)
 {
 	QString s = text;
+	int i = 0, j = 0;
+// 	if(Settings::isSmilysEnabled()){
+// 		while((j = s.indexOf(':', i)) != -1){
+// 			if(s[j+1]==')' && s[j+2]==')')
+// 				;
+// 			else
+// 				switch(s[j+1]){
+// 					case 'D':
+// 						break;
+// 					case ')':
+// 						break;
+// 					case '(':
+// 						break;
+// 					case 'o':
+// 					case 'O':
+// 						break;
+// 					case '*':
+// 					case 'x':
+// 						break;
+// 					case '|':
+// 						break;
+// 					case '/':
+// 						break;
+// 						
+// 				};
+// 		}
+// 	}
+	
 	s.replace(" www.", " http://www.");
 	if (s.startsWith("www.")) s = "http://" + s;
 	QString t = "";
-	int i = 0, j = 0;
+	i = j = 0;
 	while ((j = s.indexOf("http://", i)) != -1) {
 		t += s.mid(i, j - i);
 		int k = s.indexOf(" ", j);

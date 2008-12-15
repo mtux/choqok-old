@@ -174,7 +174,7 @@ void MainWindow::systemNotify(const QString title, const QString message, QStrin
 	switch(Settings::notifyType()){
 			case 0:
 				break;
-			case 1:
+			case 1://KNotify
 				break;
 			case 2://Libnotify!
 				QString libnotifyCmd = QString("notify-send -t ") + QString::number(Settings::notifyInterval()*1000) + QString(" -u low -i "+ iconUrl +" \"") + title + QString("\" \"") + message + QString("\"");
@@ -299,7 +299,7 @@ void MainWindow::postStatus(QString & status)
 {
 	kDebug();
 	//TODO will check for urls!
-	if(status.size()>MAX_STATUS_SIZE){
+	if(status.size()>MAX_STATUS_SIZE && status.indexOf("http://")==-1 ){
 		QString err = i18n("Status text size is more than server limit size.");
 		error(err);
 		return;
