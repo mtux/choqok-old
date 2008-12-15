@@ -63,7 +63,7 @@ void StatusWidget::updateUi()
 		btnRemove->setVisible(false);
 	}
 	lblSign->setText(generateSign());
-	lblStatus->setText(mCurrentStatus.content);
+	lblStatus->setText(prepareStatus(mCurrentStatus.content, mCurrentStatus.replyToStatusId));
 }
 
 QString StatusWidget::formatDateTime(const QDateTime &time) {
@@ -109,6 +109,55 @@ void StatusWidget::updateSign()
 void StatusWidget::requestDestroy()
 {
 	emit sigDestroy(mCurrentStatus.statusId);
+}
+
+QString StatusWidget::prepareStatus(const QString &text, const int &replyStatusId)
+{
+	QString s = text;
+	s.replace(" www.", " http://www.");
+	if (s.startsWith("www.")) s = "http://" + s;
+	QString t = "";
+	int i = 0, j = 0;
+	while ((j = s.indexOf("http://", i)) != -1) {
+		t += s.mid(i, j - i);
+		int k = s.indexOf(" ", j);
+		if (k == -1) k = s.length();
+		QString url = s.mid(j, k - j);
+		t += "<a href=\"" + url + "\" style=\"text-decoration:none\">" + url + "</a>";
+		i = k;
+	}
+	t += s.mid(i);
+	if (replyStatusId && (t[0] == '@')) {
+		s = t;
+		int i = 1;
+		while ((i < s.length()) && (QChar(s[i]).isLetterOrNumber() || (s[i] == '_'))) ++i;
+		QString username = s.mid(1, i - 1);
+		t = "<a href=\"http://twitter.com/" + username + "/statuses/" + QString::number(replyStatusId) + "\" style=\"text-decoration:none\">@" + username + "</a>" + s.mid(i);
+	}
+	return t;
+}
+
+void StatusWidget::setUnread()
+{
+	QColor backColor = this->palette().window().color();
+	int blue = backColor.blue()+COLOROFFSET;
+	int green = backColor.green()+COLOROFFSET;
+	int red = backColor.red()+COLOROFFSET;
+	
+	this->setStyleSheet("background-color: rgb("+QString::number(red)+",\
+						 "+QString::number(green)+", "+QString::number(blue)+");");
+	
+}
+
+void StatusWidget::setRead()
+{
+	QColor backColor = this->palette().window().color();
+	int blue = backColor.blue()-COLOROFFSET;
+	int green = backColor.green()-COLOROFFSET;
+	int red = backColor.red()-COLOROFFSET;
+	
+	this->setStyleSheet("background-color: rgb("+QString::number(red)+",\
+			"+QString::number(green)+", "+QString::number(blue)+");");
 }
 
 #include "statuswidget.moc"

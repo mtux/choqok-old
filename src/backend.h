@@ -54,9 +54,6 @@ signals:
 	
 protected slots:
 	void requestTimelineFinished(int id, bool isError);
-	void homeTimeLineDone(bool isError);
-	void replyTimeLineDone(bool isError);
-	void postNewStatusDone(bool isError);
 	void postNewStatusFinished(int id, bool isError);
 	
 private:

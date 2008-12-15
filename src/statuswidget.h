@@ -17,7 +17,7 @@
 #include <ui_status_base.h>
 #include "datacontainers.h"
 #define UPDATEINTERVAL 2*60000
-
+#define COLOROFFSET -15
 /**
 Status Widget
 
@@ -36,6 +36,8 @@ public:
 	Status currentStatus() const;
 	void setCurrentStatus(const Status newStatus);
 	void setUserImage(const QString &imgPath);
+	void setUnread();
+	void setRead();
 	
 signals:
 	void sigReply(QString &userName, uint statusId);
@@ -50,6 +52,7 @@ protected slots:
 	void updateSign();
 	
 private:
+	QString prepareStatus(const QString &text, const int &replyStatusId);
 	QString generateSign();
 	void updateUi();
 	QTimer timer;

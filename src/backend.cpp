@@ -140,43 +140,6 @@ void Backend::requestTimelineFinished(int id, bool isError)
 	}
 }
 
-void Backend::homeTimeLineDone(bool isError)
-{
-	kDebug()<<isError;
-	if(isError){
-		mLatestErrorString = getErrorString(qobject_cast<QHttp *>(sender()));
-		kDebug()<<mLatestErrorString;
-		return;
-	}
-	
-// 	homeBuffer.close();
-	QByteArray tmp = homeBuffer.data();
-	homeBuffer.close();
-	QList<Status> *ptr = readTimeLineFromXml(tmp);
-	if(ptr)
-		emit homeTimeLineRecived(*ptr);
-	else
-		kDebug()<<"Null returned from Backend::readTimeLineFromXml()";
-}
-
-void Backend::replyTimeLineDone(bool isError)
-{
-	kDebug()<<isError;
-	if(isError){
-		mLatestErrorString = getErrorString(qobject_cast<QHttp *>(sender()));
-		kDebug()<<mLatestErrorString;
-		return;
-	}
-	QByteArray tmp = replyBuffer.data();
-	homeBuffer.close();
-	
-	QList<Status> *ptr = readTimeLineFromXml(tmp);
-	if(ptr)
-		emit replyTimeLineRecived(*ptr);
-	else
-		kDebug()<<"Null returned from homeTimeLineRecived()";
-}
-
 QString Backend::getErrorString(QHttp * sender)
 {
 	kDebug();
@@ -218,18 +181,6 @@ QDateTime Backend::dateFromString(const QString &date)
 	QDateTime datetime = QDateTime::fromString(date, "ddd MMM dd hh:mm:ss '+0000' yyyy");
 	datetime.setTimeSpec(Qt::UTC);
 	return datetime.toLocalTime();
-}
-
-void Backend::postNewStatusDone(bool isError)
-{
-	kDebug();
-	if(isError){
-		QString err = getErrorString(qobject_cast<QHttp *>(sender()));
-		mLatestErrorString = err;
-		emit sigPostNewStatusDone(true);
-	} else {
-		emit sigPostNewStatusDone(false);
-	}
 }
 
 QList<Status> * Backend::readTimeLineFromXml(QByteArray & buffer)

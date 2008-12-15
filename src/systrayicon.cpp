@@ -14,6 +14,8 @@
 #include <kaction.h>
 #include <kactioncollection.h>
 #include <QMenu>
+#include <QPainter>
+#include <KColorScheme>
 
 SysTrayIcon::SysTrayIcon(QWidget* parent): KSystemTrayIcon(parent)
 {
@@ -21,7 +23,9 @@ SysTrayIcon::SysTrayIcon(QWidget* parent): KSystemTrayIcon(parent)
 	
 	mainWin = new MainWindow;
 	
-	setIcon(mainWin->windowIcon());
+	m_defaultIcon = KIcon("choqok").pixmap(22);
+	
+	setIcon(m_defaultIcon);
 	
 	if(Settings::showMainWinOnStart()){
 		mainWin->show();
@@ -34,8 +38,8 @@ SysTrayIcon::SysTrayIcon(QWidget* parent): KSystemTrayIcon(parent)
 	connect(this, SIGNAL(activated( QSystemTrayIcon::ActivationReason )),
 			 this, SLOT(sysTrayActivated(QSystemTrayIcon::ActivationReason)));
 	connect(quickWidget, SIGNAL(sigStatusUpdated()), mainWin, SLOT(updateHomeTimeLine()));
+	connect(mainWin, SIGNAL(sigSetUnread(int)), this, SLOT(slotSetUnread(int)));
 }
-
 
 SysTrayIcon::~SysTrayIcon()
 {
@@ -88,6 +92,7 @@ void SysTrayIcon::postQuickTwit()
 void SysTrayIcon::toggleMainWindowVisibility()
 {
 	if(mainWin->isVisible()){
+		mainWin->setUnreadStatusesToReadState();
 		mainWin->hide();
 		actionCollection()->action("toggle-mainwin")->setText("&Restore");
 	} else {
@@ -111,5 +116,67 @@ void SysTrayIcon::sysTrayActivated(QSystemTrayIcon::ActivationReason reason)
 		};
 	}
 }
+
+void SysTrayIcon::slotSetUnread(int unread)
+{
+	kDebug();
+	if (unread == m_unread)
+		return;
+
+	m_unread=unread;
+
+	this->setToolTip( i18np("choqoK - 1 unread status", "choqoK - %1 unread statuses", unread > 0 ? unread : 0));
+
+	if (unread <= 0)
+	{
+		setIcon(m_defaultIcon);
+	}
+	else
+	{
+        // adapted from KMSystemTray::updateCount()
+		int oldWidth = m_defaultIcon.size().width();
+
+		if ( oldWidth == 0 )
+			return;
+
+		QString countStr = QString::number( unread );
+		QFont f = KGlobalSettings::generalFont();
+		f.setBold(true);
+
+		float pointSize = f.pointSizeF();
+		QFontMetrics fm(f);
+		int w = fm.width(countStr);
+		if( w > (oldWidth - 2) )
+		{
+			pointSize *= float(oldWidth - 2) / float(w);
+			f.setPointSizeF(pointSize);
+		}
+
+        // overlay
+		QImage overlayImg = m_defaultIcon.toImage().copy();
+		QPainter p(&overlayImg);
+		p.setFont(f);
+		KColorScheme scheme(QPalette::Active, KColorScheme::View);
+
+		fm = QFontMetrics(f);
+		QRect boundingRect = fm.tightBoundingRect(countStr);
+		boundingRect.adjust(0, 0, 0, 2);
+		boundingRect.setHeight(qMin(boundingRect.height(), oldWidth));
+		boundingRect.moveTo((oldWidth - boundingRect.width()) / 2,
+							 ((oldWidth - boundingRect.height()) / 2) - 1);
+		p.setOpacity(0.7);
+		p.setBrush(scheme.background(KColorScheme::LinkBackground));
+		p.setPen(scheme.background(KColorScheme::LinkBackground).color());
+		p.drawRoundedRect(boundingRect, 2.0, 2.0);
+
+		p.setBrush(Qt::NoBrush);
+		p.setPen(scheme.foreground(KColorScheme::LinkText).color());
+		p.setOpacity(1.0);
+		p.drawText(overlayImg.rect(), Qt::AlignCenter, countStr);
+
+		setIcon(QPixmap::fromImage(overlayImg));
+	}
+}
+
 
 #include "systrayicon.moc"

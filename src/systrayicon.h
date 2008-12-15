@@ -33,11 +33,19 @@ public slots:
 	void postQuickTwit();
 	void toggleMainWindowVisibility();
 	void sysTrayActivated( QSystemTrayIcon::ActivationReason reason );
+	
+protected slots:
+	void slotSetUnread(int unread);
+		
 private:
 	void setupActions();
+	
 	MainWindow *mainWin;
 	QuickTwit *quickWidget;
 	bool isQuickActivated;
+	
+	QPixmap m_defaultIcon;
+	int m_unread;
 };
 
 #endif

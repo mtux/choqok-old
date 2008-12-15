@@ -46,6 +46,8 @@ public:
 public slots:
 	void updateTimeLines();
 	void updateHomeTimeLine();
+	void setUnreadStatusesToReadState();
+	
 protected slots:
     void optionsPreferences();
 	void settingsChanged();
@@ -73,9 +75,12 @@ protected slots:
 	
 signals:
 	void sigSetUserImage(StatusWidget *widget);
+	void sigSetUnread(int unread);
 	
 protected:
 	void keyPressEvent(QKeyEvent * e);
+	void checkUnreadStatuses(int numOfNewStatusesReciened);
+	bool queryClose();
 
 private:
     void setupActions();
@@ -112,13 +117,13 @@ private:
 	StatusTextEdit *txtNewStatus;
 	QList<StatusWidget*> listHomeStatus;
 	QList<StatusWidget*> listReplyStatus;
+	QList<StatusWidget*> listUnreadStatuses;
 	MediaManagement *mediaMan;
 	uint replyToStatusId;
 	QString currentUsername;// used for undresanding of username changes!
 	bool isStartMode;//used for Notify, if true: notify will not send for any or all new twits, if false will send.
 	
-//     KToggleAction *m_toolbarAction;
-//     KToggleAction *m_statusbarAction;
+	int unreadStatusCount;
 };
 
 #endif 

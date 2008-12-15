@@ -216,9 +216,12 @@ void MainWindow::homeTimeLinesRecived(QList< Status > & statusList)
 		statusBar()->showMessage(i18n("No new twits recived, The list is up to date."), TIMEOUT);
 		return;
 	} else {
-		kDebug()<<statusList.count()<<" Statuses received.";
+		int count = statusList.count();
+		kDebug()<<count<<" Statuses received.";
 		addNewStatusesToUi(statusList, ui.homeLayout, &listHomeStatus);
 		ui.homeScroll->verticalScrollBar()->setSliderPosition ( 0 );
+		if(!isStartMode)
+			ui.tabs->setTabText(0, i18n("H&ome(%1)", count));
 	}
 }
 
@@ -231,9 +234,11 @@ void MainWindow::replyTimeLineRecived(QList< Status > & statusList)
 		statusBar()->showMessage(i18n("No new twits received, The list is up to date."), TIMEOUT);
 		return;
 	}else {
-		kDebug()<<statusList.count()<<" Statuses received.";
+		int count = statusList.count();
+		kDebug()<<count<<" Statuses received.";
 		addNewStatusesToUi(statusList, ui.replyLayout, &listReplyStatus, Backend::ReplyTimeLine);
 		ui.replyScroll->verticalScrollBar()->setSliderPosition ( 0 );
+		ui.tabs->setTabText(1, i18n("&Reply(%1)", count));
 	}
 }
 
@@ -255,12 +260,18 @@ void MainWindow::addNewStatusesToUi(QList< Status > & statusList, QBoxLayout * l
 		connect(wt, SIGNAL(sigReply(QString&, uint)), this, SLOT(prepareReply(QString&, uint)));
 		list->append(wt);
 		layoutToAddStatuses->insertWidget(0, wt);
+		if(!isStartMode){
+			wt->setUnread();
+			listUnreadStatuses.append(wt);
+		}
 	}
 	uint latestId = statusList.last().statusId;
 	if(latestId > Settings::latestStatusId()){
 		kDebug()<<"Latest sets to: "<<latestId;
 		Settings::setLatestStatusId(latestId);
 	}
+	if(!isStartMode)
+		checkUnreadStatuses(statusList.count());
 	updateStatusList(list);
 }
 
@@ -477,6 +488,37 @@ void MainWindow::loadConfigurations()
 	updateTimeLines();
 }
 
+void MainWindow::checkUnreadStatuses(int numOfNewStatusesReciened)
+{
+	kDebug();
+	if(this->isVisible()){
+		unreadStatusCount = 0;
+	} else {
+		unreadStatusCount += numOfNewStatusesReciened;
+		
+	}
+	emit sigSetUnread(unreadStatusCount);
+}
 
+void MainWindow::setUnreadStatusesToReadState()
+{
+	kDebug();
+	ui.tabs->setTabText(0, i18n("H&ome"));
+	ui.tabs->setTabText(1, i18n("&Reply"));
+	int count = listUnreadStatuses.count();
+	for(int i=0;i<count; ++i){
+		listUnreadStatuses[i]->setRead();
+	}
+	listUnreadStatuses.clear();
+	unreadStatusCount = 0;
+	emit sigSetUnread(unreadStatusCount);
+}
+
+bool MainWindow::queryClose()
+{
+	kDebug();
+	setUnreadStatusesToReadState();
+	return true;
+}
 
 #include "mainwindow.moc"
