@@ -68,6 +68,7 @@ void StatusWidget::updateUi()
 
 QString StatusWidget::formatDateTime(const QDateTime &time) {
 	int seconds = time.secsTo(QDateTime::currentDateTime());
+// 	kDebug()<<seconds<<"Time is: "<< time << " Current datetime: " <<QDateTime::currentDateTime();
 	if (seconds <= 15) return "Just now";
 	if (seconds <= 45) return "about " + QString::number(seconds) + " second" + (seconds == 1 ? "" : "s") + " ago";
 	int minutes = (seconds - 45 + 59) / 60;

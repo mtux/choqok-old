@@ -73,9 +73,11 @@ MainWindow::MainWindow()
 	
 	isStartMode = true;
 	QList< Status > lstHome = loadStatuses("choqokHomeStatusListrc");
-	addNewStatusesToUi(lstHome, ui.homeLayout, &listHomeStatus);
+	if(lstHome.count()>0)
+		addNewStatusesToUi(lstHome, ui.homeLayout, &listHomeStatus);
 	QList< Status > lstReply = loadStatuses("choqokReplyStatusListrc");
-	addNewStatusesToUi(lstReply, ui.replyLayout, &listReplyStatus, Backend::ReplyTimeLine);
+	if(lstReply.count()>0)
+		addNewStatusesToUi(lstReply, ui.replyLayout, &listReplyStatus, Backend::ReplyTimeLine);
 	
 	
 	updateTimeLines();

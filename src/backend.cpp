@@ -215,11 +215,9 @@ QString Backend::getErrorString(QHttp * sender)
 
 QDateTime Backend::dateFromString(const QString &date)
 {
-	char s[10];
-	int year, day, hours, minutes, seconds;
-	sscanf(qPrintable(date), "%*s %s %d %d:%d:%d %*s %d", s, &day, &hours, &minutes, &seconds, &year);
-	int month = monthes[s];
-	return QDateTime(QDate(year, month, day), QTime(hours, minutes, seconds));
+	QDateTime datetime = QDateTime::fromString(date, "ddd MMM dd hh:mm:ss '+0000' yyyy");
+	datetime.setTimeSpec(Qt::UTC);
+	return datetime.toLocalTime();
 }
 
 void Backend::postNewStatusDone(bool isError)
@@ -294,8 +292,8 @@ QList<Status> * Backend::readTimeLineFromXml(QByteArray & buffer)
 					node2 = node2.nextSibling();
 				}
 				node = node.nextSibling();
-				QDateTime time = dateFromString(timeStr);
-				status.creationDateTime = QDateTime(time.date(), time.time(), Qt::UTC);
+				status.creationDateTime = dateFromString(timeStr);
+// 				 = QDateTime(time.date(), time.time(), Qt::UTC);
 				statusList->insert(0, status);
 			}
 	return statusList;
