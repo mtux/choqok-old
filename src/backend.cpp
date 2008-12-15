@@ -45,6 +45,7 @@ Backend::Backend(QObject* parent): QObject(parent)
 
 Backend::~Backend()
 {
+	kDebug();
 	logout();
 }
 
@@ -110,7 +111,6 @@ void Backend::requestTimeLine(TimeLineType type, int page)
 
 void Backend::requestTimelineFinished(int id, bool isError)
 {
-	kDebug()<<isError;
 	if(isError){
 		mLatestErrorString = getErrorString(qobject_cast<QHttp *>(sender()));
 		kDebug()<<mLatestErrorString;
@@ -118,6 +118,7 @@ void Backend::requestTimelineFinished(int id, bool isError)
 	}
 	QByteArray tmp;
 	if(id == homeTimelineHttpNum){
+		kDebug();
 		tmp = homeBuffer.data();
 		homeBuffer.close();
 		
@@ -127,6 +128,7 @@ void Backend::requestTimelineFinished(int id, bool isError)
 		else
 			kDebug()<<"Null returned from Backend::readTimeLineFromXml()";
 	} else if (id == replyTimelineHttpNum){
+		kDebug();
 		tmp = replyBuffer.data();
 		homeBuffer.close();
 		

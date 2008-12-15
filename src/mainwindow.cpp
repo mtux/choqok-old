@@ -34,12 +34,12 @@ MainWindow::MainWindow()
 	this->setAttribute(Qt::WA_DeleteOnClose, false);
 	Settings::setLatestStatusId(0);
 	Settings::self()->readConfig();
-	twitter = new Backend;
+	twitter = new Backend(this);
 	connect(twitter, SIGNAL(homeTimeLineRecived(QList< Status >&)), this, SLOT(homeTimeLinesRecived(QList< Status >&)));
 	connect(twitter, SIGNAL(replyTimeLineRecived(QList< Status >&)), this, SLOT(replyTimeLineRecived(QList< Status >&)));
 	connect(twitter, SIGNAL(sigPostNewStatusDone(bool)), this, SLOT(postingNewStatusDone(bool)));
     // tell the KXmlGuiWindow that this is indeed the main widget
-	mainWidget = new QWidget;
+	mainWidget = new QWidget(this);
     ui.setupUi(mainWidget);
 	ui.homeLayout->setDirection(QBoxLayout::TopToBottom);
 	ui.replyLayout->setDirection(QBoxLayout::TopToBottom);
@@ -56,9 +56,7 @@ MainWindow::MainWindow()
     setupActions();
 	statusBar()->show();
 	setupGUI();
-		
-	if(Settings::loadTimeLineOnStart())
-		updateTimeLines();
+	
 	timelineTimer = new QTimer(this);
 	timelineTimer->start();
 	
@@ -72,17 +70,22 @@ MainWindow::MainWindow()
 // 	connect(twitter, SIGNAL(sigError(QString&)), this, SLOT(error(QString&)));
 	connect(this, SIGNAL(sigSetUserImage(StatusWidget*)), this, SLOT(setUserImage(StatusWidget*)));
 	connect(ui.toggleArrow, SIGNAL(clicked()), this, SLOT(toggleTwitFieldVisible()));
+	
+	isStartMode = true;
+	QList< Status > lstHome = loadStatuses("choqokHomeStatusListrc");
+	addNewStatusesToUi(lstHome, ui.homeLayout, &listHomeStatus);
+	QList< Status > lstReply = loadStatuses("choqokReplyStatusListrc");
+	addNewStatusesToUi(lstReply, ui.replyLayout, &listReplyStatus);
+	
+	
+	updateTimeLines();
 }
 
 MainWindow::~MainWindow()
 {
 	kDebug();
 	//TODO Save Status list
-	if(Settings::isSaveStatus()){
-		saveStatuses(Settings::saveStatusCount());
-	} else {
-		Settings::setLatestStatusId(0);
-	}
+	timelineTimer->stop();
 	Settings::self()->writeConfig();
 }
 
@@ -165,6 +168,7 @@ void MainWindow::settingsChanged()
 	} else{
 		ui.toggleArrow->setArrowType(Qt::DownArrow);
 		ui.inputFrame->show();
+		txtNewStatus->setFocus(Qt::OtherFocusReason);
 	}
 }
 
@@ -221,7 +225,7 @@ void MainWindow::homeTimeLinesRecived(QList< Status > & statusList)
 		return;
 	} else {
 		kDebug()<<statusList.count()<<" Statuses received.";
-		addNewStatusesToUi(statusList, ui.homeLayout);
+		addNewStatusesToUi(statusList, ui.homeLayout, &listHomeStatus);
 	}
 }
 
@@ -235,13 +239,13 @@ void MainWindow::replyTimeLineRecived(QList< Status > & statusList)
 		return;
 	}else {
 		kDebug()<<statusList.count()<<" Statuses received.";
-		addNewStatusesToUi(statusList, ui.replyLayout);
+		addNewStatusesToUi(statusList, ui.replyLayout, &listReplyStatus);
 	}
 	
 	
 }
 
-void MainWindow::addNewStatusesToUi(QList< Status > & statusList, QBoxLayout * layoutToAddStatuses)
+void MainWindow::addNewStatusesToUi(QList< Status > & statusList, QBoxLayout * layoutToAddStatuses, QList<StatusWidget*> *list)
 {
 	kDebug();
 	QList<Status>::const_iterator it = statusList.constBegin();
@@ -256,7 +260,7 @@ void MainWindow::addNewStatusesToUi(QList< Status > & statusList, QBoxLayout * l
 		wt->setCurrentStatus(*it);
 		emit sigSetUserImage(wt);
 		connect(wt, SIGNAL(sigReply(QString&, uint)), this, SLOT(prepareReply(QString&, uint)));
-		listReplyStatus.append(wt);
+		list->append(wt);
 		layoutToAddStatuses->insertWidget(0, wt);
 	}
 	uint latestId = statusList.last().statusId;
@@ -307,18 +311,61 @@ void MainWindow::postingNewStatusDone(bool isError)
 	}
 	txtNewStatus->setEnabled(true);
 	if(Settings::hideTwitField())
-		ui.inputFrame->hide();
+		toggleTwitFieldVisible();
 }
 
-bool MainWindow::saveStatuses(int count)
+bool MainWindow::saveStatuses(QString fileName, QList<StatusWidget*> &list)
 {
-	if(count >= listHomeStatus.count()){
-		//Save all:
-		
-	} else {
-		
+	kDebug();
+	KConfig statusesBackup(fileName);
+	
+	int count = list.count();
+	for(int i=0; i < count; ++i){
+// 		QString str = ;
+		KConfigGroup grp(&statusesBackup, QString::number(list[i]->currentStatus().statusId));
+		grp.writeEntry("created_at", list[i]->currentStatus().creationDateTime);
+		grp.writeEntry("id", list[i]->currentStatus().statusId);
+		grp.writeEntry("text", list[i]->currentStatus().content);
+		grp.writeEntry("source", list[i]->currentStatus().source);
+		grp.writeEntry("truncated", list[i]->currentStatus().isTruncated);
+		grp.writeEntry("in_reply_to_status_id", list[i]->currentStatus().replyToStatusId);
+		grp.writeEntry("in_reply_to_user_id", list[i]->currentStatus().replyToUserId);
+		grp.writeEntry("favorited", list[i]->currentStatus().isFavorited);
+		grp.writeEntry("in_reply_to_screen_name", list[i]->currentStatus().replyToUserScreenName);
+		grp.writeEntry("userId", list[i]->currentStatus().user.userId);
+		grp.writeEntry("screen_name", list[i]->currentStatus().user.screenName);
+		grp.writeEntry("profile_image_url", list[i]->currentStatus().user.profileImageUrl);
 	}
-	return false;///When implement this function remove this!
+	statusesBackup.sync();
+	return true;
+}
+
+QList< Status > MainWindow::loadStatuses(QString fileName)
+{
+	kDebug();
+	KConfig statusesBackup(fileName, KConfig::NoGlobals);
+	QList< Status > list;
+	QStringList groupList = statusesBackup.groupList();
+// 	kDebug()<<groupList;
+	int count = groupList.count();
+	for(int i=0; i < count; ++i){
+		KConfigGroup grp(&statusesBackup, groupList[i]);
+		Status st;
+		st.creationDateTime = grp.readEntry("created_at", QDateTime::currentDateTime());
+		st.statusId = grp.readEntry("id", (uint)0);
+		st.content = grp.readEntry("text", QString());
+		st.source = grp.readEntry("source", QString());
+		st.isTruncated = grp.readEntry("truncated", false);
+		st.replyToStatusId = grp.readEntry("in_reply_to_status_id", (uint)0);
+		st.replyToUserId = grp.readEntry("in_reply_to_user_id", (uint)0);
+		st.isFavorited = grp.readEntry("favorited", false);
+		st.replyToUserScreenName = grp.readEntry("in_reply_to_screen_name", QString());
+		st.user.userId = grp.readEntry("userId", (uint)0);
+		st.user.screenName = grp.readEntry("screen_name", QString());
+		st.user.profileImageUrl = grp.readEntry("profile_image_url", QString());
+		list.append(st);
+	}
+	return list;
 }
 
 void MainWindow::setUserImage(StatusWidget * widget)
@@ -352,6 +399,8 @@ void MainWindow::keyPressEvent(QKeyEvent * e)
 
 void MainWindow::quitApp()
 {
+	saveStatuses("choqokHomeStatusListrc", listHomeStatus);
+	saveStatuses("choqokReplyStatusListrc", listReplyStatus);
 	deleteLater();
 }
 
@@ -370,6 +419,7 @@ void MainWindow::toggleTwitFieldVisible()
 	else {
 		ui.inputFrame->show();
 		ui.toggleArrow->setArrowType(Qt::DownArrow);
+		txtNewStatus->setFocus(Qt::OtherFocusReason);
 	}
 }
 

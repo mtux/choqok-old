@@ -71,6 +71,7 @@ void SysTrayIcon::setupActions()
 
 void SysTrayIcon::quitApp()
 {
+	kDebug();
 	qApp->quit();
 }
 
@@ -88,10 +89,10 @@ void SysTrayIcon::toggleMainWindowVisibility()
 {
 	if(mainWin->isVisible()){
 		mainWin->hide();
-		actionCollection()->action("toggle-mainwin")->setText("Restore");
+		actionCollection()->action("toggle-mainwin")->setText("&Restore");
 	} else {
 		mainWin->show();
-		actionCollection()->action("toggle-mainwin")->setText("Minimize");
+		actionCollection()->action("toggle-mainwin")->setText("&Minimize");
 	}
 }
 

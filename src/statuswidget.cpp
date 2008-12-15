@@ -23,8 +23,10 @@ StatusWidget::StatusWidget(QWidget *parent)
 	btnReply->setIcon(KIcon("edit-undo"));
 	btnRemove->setIcon(KIcon("edit-delete"));
 	
-	connect(btnReply, SIGNAL(clicked(bool)), this, SLOT(requestReplay()));
+	connect(btnReply, SIGNAL(clicked(bool)), this, SLOT(requestReply()));
 	connect(&timer, SIGNAL(timeout()), this, SLOT(updateSign()));
+	connect(btnFavorite, SIGNAL(clicked(bool)), this, SLOT(setFavorite(bool)));
+	connect(btnRemove, SIGNAL(clicked(bool)), this, SLOT(requestDestroy()));
 }
 
 
@@ -38,6 +40,7 @@ void StatusWidget::remove()
 
 void StatusWidget::setFavorite(bool isFavorite)
 {
+	emit sigFavorite(mCurrentStatus.statusId, isFavorite);
 }
 
 Status StatusWidget::currentStatus() const
@@ -61,7 +64,6 @@ void StatusWidget::updateUi()
 	}
 	lblSign->setText(generateSign());
 	lblStatus->setText(mCurrentStatus.content);
-	//TODO: set Image
 }
 
 QString StatusWidget::formatDateTime(const QDateTime &time) {
@@ -83,7 +85,7 @@ void StatusWidget::setUserImage(const QString & imgPath)
 	lblImage->setPixmap(QPixmap(imgPath));
 }
 
-void StatusWidget::requestReplay()
+void StatusWidget::requestReply()
 {
 	kDebug();
 	emit sigReply(mCurrentStatus.user.screenName, mCurrentStatus.statusId);
@@ -101,6 +103,11 @@ QString StatusWidget::generateSign()
 void StatusWidget::updateSign()
 {
 	lblSign->setText(generateSign());
+}
+
+void StatusWidget::requestDestroy()
+{
+	emit sigDestroy(mCurrentStatus.statusId);
 }
 
 #include "statuswidget.moc"

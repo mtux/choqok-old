@@ -30,15 +30,6 @@
     <entry name="latestStatusId" type="UInt">
 	    <default>0</default>
     </entry>
-    <entry name="isSaveStatus" type="Bool">
-	    <default>true</default>
-    </entry>
-    <entry name="saveStatusCount" type="Int">
-	    <default>10</default>
-    </entry>
-    <entry name="loadTimeLineOnStart" type="Bool">
-	    <default>true</default>
-    </entry>
     <entry name="showMainWinOnStart" type="Bool">
 	    <default>true</default>
     </entry>

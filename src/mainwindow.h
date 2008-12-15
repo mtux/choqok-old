@@ -80,15 +80,19 @@ protected:
 private:
     void setupActions();
 	void setDefaultDirection();
-	void addNewStatusesToUi(QList< Status > & statusList, QBoxLayout *layoutToAddStatuses);
+	void addNewStatusesToUi(QList< Status > & statusList, QBoxLayout *layoutToAddStatuses, QList<StatusWidget*> *list);
 // 	void setTxtNewStatusDirection();
 // 	QString prepareNewStatus(QString newStatus=QString());
+
 	/**
-	 *    Will store @count count of current statuses
-	 * @param count 
+	 * Will store current first page of statuses on disk.
+	 * @param fileName list will be stored on this file.
+	 * @param list list of Statuses will be stored.
 	 * @return True on success, and false on failer
 	 */
-	bool saveStatuses(int count);
+	bool saveStatuses(QString fileName, QList<StatusWidget*> &list);
+	
+	QList< Status > loadStatuses(QString fileName);
 
 private:
 	QTimer *timelineTimer;

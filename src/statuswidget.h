@@ -39,11 +39,14 @@ public:
 	
 signals:
 	void sigReply(QString &userName, uint statusId);
+	void sigDestroy(uint statusId);
+	void sigFavorite(uint statusId, bool isFavorite);
 	
 protected slots:
 	void remove();
 	void setFavorite(bool isFavorite);
-	void requestReplay();
+	void requestReply();
+	void requestDestroy();
 	void updateSign();
 	
 private:
