@@ -96,6 +96,11 @@ private:
 	QList< Status > loadStatuses(QString fileName);
 	
 	void updateStatusList(QList<StatusWidget*> *list);
+	
+	void reloadTimeLineLists();
+	void clearTimeLineList(QList<StatusWidget*> *list);
+	
+	void loadConfigurations();
 
 private:
 	QTimer *timelineTimer;
@@ -109,7 +114,7 @@ private:
 	QList<StatusWidget*> listReplyStatus;
 	MediaManagement *mediaMan;
 	uint replyToStatusId;
-	
+	QString currentUsername;// used for undresanding of username changes!
 	bool isStartMode;//used for Notify, if true: notify will not send for any or all new twits, if false will send.
 	
 //     KToggleAction *m_toolbarAction;

@@ -52,35 +52,23 @@ MainWindow::MainWindow()
 	ui.inputFrame->layout()->addWidget(txtNewStatus);
 	
 	setCentralWidget(mainWidget);
-    // then, setup our actions
-    setupActions();
+
+	setupActions();
 	statusBar()->show();
 	setupGUI();
 	
 	timelineTimer = new QTimer(this);
 	timelineTimer->start();
-	
-	settingsChanged();
-	
+		
 	mediaMan = new MediaManagement(this);
 	
 	connect(timelineTimer, SIGNAL(timeout()), this, SLOT(updateTimeLines()));
 	connect(txtNewStatus, SIGNAL(charsLeft(int)), this, SLOT(checkNewStatusCharactersCount(int)));
 	connect(txtNewStatus, SIGNAL(returnPressed(QString&)), this, SLOT(postStatus(QString&)));
-// 	connect(twitter, SIGNAL(sigError(QString&)), this, SLOT(error(QString&)));
 	connect(this, SIGNAL(sigSetUserImage(StatusWidget*)), this, SLOT(setUserImage(StatusWidget*)));
 	connect(ui.toggleArrow, SIGNAL(clicked()), this, SLOT(toggleTwitFieldVisible()));
 	
-	isStartMode = true;
-	QList< Status > lstHome = loadStatuses("choqokHomeStatusListrc");
-	if(lstHome.count()>0)
-		addNewStatusesToUi(lstHome, ui.homeLayout, &listHomeStatus);
-	QList< Status > lstReply = loadStatuses("choqokReplyStatusListrc");
-	if(lstReply.count()>0)
-		addNewStatusesToUi(lstReply, ui.replyLayout, &listReplyStatus, Backend::ReplyTimeLine);
-	
-	
-	updateTimeLines();
+	loadConfigurations();
 }
 
 MainWindow::~MainWindow()
@@ -144,6 +132,7 @@ void MainWindow::optionsPreferences()
 	dialog->addPage(accountsSettingsDlg, i18n("Account"), "accounts_setting");
 	
     connect(dialog, SIGNAL(settingsChanged(QString)), this, SLOT(settingsChanged()));
+	currentUsername = Settings::username();
     dialog->setAttribute( Qt::WA_DeleteOnClose );
     dialog->show();
 }
@@ -161,7 +150,8 @@ void MainWindow::checkNewStatusCharactersCount(int numOfChars)
 void MainWindow::settingsChanged()
 {
 	kDebug();
-// 	twitter->requestCurrentUser();
+	if(currentUsername != Settings::username())
+		reloadTimeLineLists();
 	setDefaultDirection();
 	timelineTimer->setInterval(Settings::updateInterval()*60000);
 	if(Settings::hideTwitField()){
@@ -439,6 +429,54 @@ void MainWindow::updateStatusList(QList<StatusWidget*> *list)
 		}
 	}
 }
+
+void MainWindow::reloadTimeLineLists()
+{
+	kDebug();
+	clearTimeLineList(&listHomeStatus);
+	clearTimeLineList(&listReplyStatus);
+	Settings::setLatestStatusId(0);
+	updateTimeLines();
+	
+}
+
+void MainWindow::clearTimeLineList(QList< StatusWidget * > * list)
+{
+	kDebug();
+	int count = list->count();
+	for(int i =0; i < count; ++i){
+		StatusWidget* wt = list->first();
+		list->removeFirst();
+		wt->close();
+	}
+}
+
+void MainWindow::loadConfigurations()
+{
+	kDebug();
+	setDefaultDirection();
+	timelineTimer->setInterval(Settings::updateInterval()*60000);
+	if(Settings::hideTwitField()){
+		ui.inputFrame->hide();
+		ui.toggleArrow->setArrowType(Qt::LeftArrow);
+	} else{
+		ui.toggleArrow->setArrowType(Qt::DownArrow);
+		ui.inputFrame->show();
+		txtNewStatus->setFocus(Qt::OtherFocusReason);
+	}
+	
+	isStartMode = true;
+	QList< Status > lstHome = loadStatuses("choqokHomeStatusListrc");
+	if(lstHome.count()>0)
+		addNewStatusesToUi(lstHome, ui.homeLayout, &listHomeStatus);
+	QList< Status > lstReply = loadStatuses("choqokReplyStatusListrc");
+	if(lstReply.count()>0)
+		addNewStatusesToUi(lstReply, ui.replyLayout, &listReplyStatus, Backend::ReplyTimeLine);
+	
+	
+	updateTimeLines();
+}
+
 
 
 #include "mainwindow.moc"
