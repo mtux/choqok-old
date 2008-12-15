@@ -13,7 +13,7 @@
 #include "ui_mainwindow_base.h"
 #include "ui_accounts_base.h"
 #include "datacontainers.h"
-
+#include "backend.h"
 
 #define TIMEOUT 5000
 class Backend;
@@ -80,7 +80,8 @@ protected:
 private:
     void setupActions();
 	void setDefaultDirection();
-	void addNewStatusesToUi(QList< Status > & statusList, QBoxLayout *layoutToAddStatuses, QList<StatusWidget*> *list);
+	void addNewStatusesToUi(QList< Status > & statusList, QBoxLayout *layoutToAddStatuses, QList<StatusWidget*> *list,
+							 Backend::TimeLineType type = Backend::HomeTimeLine);
 // 	void setTxtNewStatusDirection();
 // 	QString prepareNewStatus(QString newStatus=QString());
 
@@ -93,6 +94,8 @@ private:
 	bool saveStatuses(QString fileName, QList<StatusWidget*> &list);
 	
 	QList< Status > loadStatuses(QString fileName);
+	
+	void updateStatusList(QList<StatusWidget*> *list);
 
 private:
 	QTimer *timelineTimer;

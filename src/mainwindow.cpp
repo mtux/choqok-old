@@ -19,9 +19,9 @@
 #include <QProcess>
 #include <QTimer>
 #include <QKeyEvent>
+#include <QScrollBar>
 
 #include "constants.h"
-#include "backend.h"
 #include "statustextedit.h"
 #include "mediamanagement.h"
 
@@ -75,7 +75,7 @@ MainWindow::MainWindow()
 	QList< Status > lstHome = loadStatuses("choqokHomeStatusListrc");
 	addNewStatusesToUi(lstHome, ui.homeLayout, &listHomeStatus);
 	QList< Status > lstReply = loadStatuses("choqokReplyStatusListrc");
-	addNewStatusesToUi(lstReply, ui.replyLayout, &listReplyStatus);
+	addNewStatusesToUi(lstReply, ui.replyLayout, &listReplyStatus, Backend::ReplyTimeLine);
 	
 	
 	updateTimeLines();
@@ -226,6 +226,7 @@ void MainWindow::homeTimeLinesRecived(QList< Status > & statusList)
 	} else {
 		kDebug()<<statusList.count()<<" Statuses received.";
 		addNewStatusesToUi(statusList, ui.homeLayout, &listHomeStatus);
+		ui.homeScroll->verticalScrollBar()->setSliderPosition ( 0 );
 	}
 }
 
@@ -239,24 +240,24 @@ void MainWindow::replyTimeLineRecived(QList< Status > & statusList)
 		return;
 	}else {
 		kDebug()<<statusList.count()<<" Statuses received.";
-		addNewStatusesToUi(statusList, ui.replyLayout, &listReplyStatus);
+		addNewStatusesToUi(statusList, ui.replyLayout, &listReplyStatus, Backend::ReplyTimeLine);
+		ui.replyScroll->verticalScrollBar()->setSliderPosition ( 0 );
 	}
-	
-	
 }
 
-void MainWindow::addNewStatusesToUi(QList< Status > & statusList, QBoxLayout * layoutToAddStatuses, QList<StatusWidget*> *list)
+void MainWindow::addNewStatusesToUi(QList< Status > & statusList, QBoxLayout * layoutToAddStatuses, QList<StatusWidget*> *list, Backend::TimeLineType type)
 {
 	kDebug();
 	QList<Status>::const_iterator it = statusList.constBegin();
 	QList<Status>::const_iterator endIt = statusList.constEnd();
 	
 	for(;it!=endIt; ++it){
-		if(!isStartMode){
+		if(!isStartMode && (type != Backend::HomeTimeLine || it->replyToUserScreenName!=Settings::username())){
 			MainWindow::systemNotify(it->user.screenName, it->content,
 									 mediaMan->getImageLocalPathIfExist(it->user.profileImageUrl));
 		}
 		StatusWidget *wt = new StatusWidget(this);
+		wt->setAttribute(Qt::WA_DeleteOnClose);
 		wt->setCurrentStatus(*it);
 		emit sigSetUserImage(wt);
 		connect(wt, SIGNAL(sigReply(QString&, uint)), this, SLOT(prepareReply(QString&, uint)));
@@ -268,6 +269,7 @@ void MainWindow::addNewStatusesToUi(QList< Status > & statusList, QBoxLayout * l
 		kDebug()<<"Latest sets to: "<<latestId;
 		Settings::setLatestStatusId(latestId);
 	}
+	updateStatusList(list);
 }
 
 void MainWindow::setDefaultDirection()
@@ -420,6 +422,19 @@ void MainWindow::toggleTwitFieldVisible()
 		ui.inputFrame->show();
 		ui.toggleArrow->setArrowType(Qt::DownArrow);
 		txtNewStatus->setFocus(Qt::OtherFocusReason);
+	}
+}
+
+void MainWindow::updateStatusList(QList<StatusWidget*> *list)
+{
+	kDebug();
+	int toBeDelete = list->count() - Settings::countOfStatusesOnMain();
+	if(toBeDelete > 0){
+		for(int i =0; i < toBeDelete; ++i){
+			StatusWidget* wt = list->first();
+			list->removeFirst();
+			wt->close();
+		}
 	}
 }
 

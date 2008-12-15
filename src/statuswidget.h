@@ -16,7 +16,7 @@
 #include <QTimer>
 #include <ui_status_base.h>
 #include "datacontainers.h"
-#define UPDATEINTERVAL 3*60000
+#define UPDATEINTERVAL 1*60000
 
 /**
 Status Widget

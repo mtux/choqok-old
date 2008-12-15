@@ -23,6 +23,9 @@
 	    <label>Update interval</label>
 	    <default>10</default>
     </entry>
+    <entry name="countOfStatusesOnMain" type="Int">
+	    <default>20</default>
+    </entry>
     <entry name="notifyInterval" type="Int">
 	    <label>Update interval</label>
 	    <default>10</default>
