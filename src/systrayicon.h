@@ -33,7 +33,7 @@ public slots:
 	void postQuickTwit();
 	void toggleMainWindowVisibility();
 	void sysTrayActivated( QSystemTrayIcon::ActivationReason reason );
-	void systemNotify(const QString title, const QString message, QString iconUrl);
+	void systemNotify(const QString &title, const QString &message, const QString &iconUrl);
 	
 protected slots:
 	void slotSetUnread(int unread);

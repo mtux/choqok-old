@@ -40,6 +40,8 @@ SysTrayIcon::SysTrayIcon(QWidget* parent): KSystemTrayIcon(parent)
 			 this, SLOT(sysTrayActivated(QSystemTrayIcon::ActivationReason)));
 	connect(quickWidget, SIGNAL(sigStatusUpdated()), mainWin, SLOT(updateHomeTimeLine()));
 	connect(mainWin, SIGNAL(sigSetUnread(int)), this, SLOT(slotSetUnread(int)));
+	connect(mainWin, SIGNAL(sigNotify(const QString&, const QString&, const QString&)), this, SLOT(systemNotify(const QString&, const QString&,const QString&)));
+	connect(quickWidget, SIGNAL(sigNotify(const QString&,const  QString&,const  QString&)), this, SLOT(systemNotify(const QString&, const QString&, const QString&)));
 }
 
 SysTrayIcon::~SysTrayIcon()
@@ -179,7 +181,7 @@ void SysTrayIcon::slotSetUnread(int unread)
 	}
 }
 
-void SysTrayIcon::systemNotify(const QString title, const QString message, QString iconUrl)
+void SysTrayIcon::systemNotify(const QString &title, const QString &message, const QString &iconUrl)
 {
 	switch(Settings::notifyType()){
 		case 0:

@@ -40,6 +40,7 @@ protected:
 	
 signals:
 	void sigStatusUpdated();
+	void sigNotify( const QString &title, const QString &message, const QString &iconUrl);
 	
 private:
 	StatusTextEdit *txtStatus;

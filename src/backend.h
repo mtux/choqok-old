@@ -41,11 +41,15 @@ public slots:
 // 	void updateTimeLines(TimeLineType type=All, int page=0);
 	void postNewStatus(const QString &statusMessage, uint replyToStatusId=0);
 	void requestTimeLine(TimeLineType type, int page=0);
+	void requestFavorited(uint statusId, bool isFavorite);
+	void requestDestroy(uint statusId);
 	void abortPostNewStatus();
 // 	void requestCurrentUser();
 	
 signals:
 	void sigPostNewStatusDone(bool isError);
+	void sigFavoritedDone(bool isError);
+	void sigDestroyDone(bool isError);
 // 	void sigError(QString &errorMessage);
 	void homeTimeLineRecived(QList<Status> &statusList);
 	void replyTimeLineRecived(QList<Status> &statusList);
@@ -66,6 +70,8 @@ private:
 	
 	QHttp statusHttp;
 	int statusHttpNum;
+	int favoritedHttpNum;
+	int destroyHttpNum;
 	
 	QHttp timelineHttp;
 	int homeTimelineHttpNum;

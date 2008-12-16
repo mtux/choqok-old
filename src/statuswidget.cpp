@@ -66,7 +66,8 @@ void StatusWidget::updateUi()
 	lblStatus->setText(prepareStatus(mCurrentStatus.content, mCurrentStatus.replyToStatusId));
 }
 
-QString StatusWidget::formatDateTime(const QDateTime &time) {
+QString StatusWidget::formatDateTime(const QDateTime &time) 
+{
 	int seconds = time.secsTo(QDateTime::currentDateTime());
 // 	kDebug()<<seconds<<"Time is: "<< time << " Current datetime: " <<QDateTime::currentDateTime();
 	if (seconds <= 15) return "Just now";
@@ -78,8 +79,6 @@ QString StatusWidget::formatDateTime(const QDateTime &time) {
 	int days = (seconds - 18 * 3600 + 24 * 3600 - 1) / (24 * 3600);
 	return "about " + QString::number(days) + " day" + (days == 1 ? "" : "s") + " ago";
 }
-
-
 
 void StatusWidget::setUserImage(const QString & imgPath)
 {

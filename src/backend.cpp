@@ -57,13 +57,17 @@ void Backend::postNewStatus(const QString & statusMessage, uint replyToStatusId)
 	header.setRequest("POST", url.path());
 	header.setValue("Host", url.host());
 	header.setContentType("application/x-www-form-urlencoded");
+	header.setValue("X-Twitter-Client", "choqoK");
+	header.setValue("X-Twitter-Client-Version", "0.1");
+	header.setValue("X-Twitter-Client-URL", "http://github.com/mtux/choqok/wikis/home");
 	
  	statusHttp.setHost(url.host(), url.port(80));
 	statusHttp.setUser(Settings::username(), Settings::password());
 	
 	QByteArray data = "status=";
 	data += QUrl::toPercentEncoding(statusMessage);
-// 	data += "&in_reply_to_status_id=" + QString::number(replyToStatusId);
+	if(replyToStatusId!=0)
+		data += "&in_reply_to_status_id=" + QString::number(replyToStatusId);
 	data += "&source=choqok";
 	
 	statusHttpNum = statusHttp.request(header, data);
@@ -262,15 +266,74 @@ QString& Backend::latestErrorString()
 
 void Backend::postNewStatusFinished(int id, bool isError)
 {
-	if(isError){
-		QString err = getErrorString(qobject_cast<QHttp *>(sender()));
-		kDebug()<<err;
-		mLatestErrorString = err;
-		emit sigPostNewStatusDone(true);
-	} else if(id == statusHttpNum){
+	if(id == statusHttpNum){
 		kDebug();
-		emit sigPostNewStatusDone(false);
+		if(isError){
+			QString err = getErrorString(qobject_cast<QHttp *>(sender()));
+			kDebug()<<err;
+			mLatestErrorString = err;
+			emit sigPostNewStatusDone(true);
+			return;
+		} else
+			emit sigPostNewStatusDone(false);
+	} else if ( id == favoritedHttpNum){
+		kDebug();
+		if(isError){
+			QString err = getErrorString(qobject_cast<QHttp *>(sender()));
+			kDebug()<<err;
+			mLatestErrorString = err;
+			emit sigFavoritedDone(true);
+			return;
+		} else
+			emit sigFavoritedDone(false);
+	} else if ( id==destroyHttpNum){
+		kDebug();
+		if(isError){
+			QString err = getErrorString(qobject_cast<QHttp *>(sender()));
+			kDebug()<<err;
+			mLatestErrorString = err;
+			emit sigDestroyDone(true);
+			return;
+		} else
+			emit sigDestroyDone(false);
 	}
+}
+
+void Backend::requestFavorited(uint statusId, bool isFavorite)
+{
+	kDebug();
+	if(isFavorite){
+		QUrl url("http://twitter.com/favorites/create/"+QString::number(statusId)+".xml");
+	
+		statusHttp.setHost(url.host(), url.port(80));
+		statusHttp.setUser(Settings::username(), Settings::password());
+	
+		QByteArray data = "source=choqok";
+	
+		favoritedHttpNum = statusHttp.post(url.toString() , data);
+	} else {
+		QUrl url("http://twitter.com/favorites/destroy/"+QString::number(statusId)+".xml");
+	
+		statusHttp.setHost(url.host(), url.port(80));
+		statusHttp.setUser(Settings::username(), Settings::password());
+	
+		QByteArray data = "source=choqok";
+	
+		favoritedHttpNum = statusHttp.post(url.toString() , data);
+	}
+}
+
+void Backend::requestDestroy(uint statusId)
+{
+	kDebug();
+	QUrl url("http://twitter.com/statuses/destroy/"+QString::number(statusId)+".xml");
+	
+	statusHttp.setHost(url.host(), url.port(80));
+	statusHttp.setUser(Settings::username(), Settings::password());
+	
+	QByteArray data = "source=choqok";
+	
+	destroyHttpNum = statusHttp.post(url.toString() , data);
 }
 
 

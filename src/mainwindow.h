@@ -42,11 +42,13 @@ public:
      */
 	virtual ~MainWindow();
 	
-	static void systemNotify(const QString title, const QString message, QString iconUrl);
+// 	static void systemNotify(const QString title, const QString message, QString iconUrl);
 public slots:
 	void updateTimeLines();
 	void updateHomeTimeLine();
 	void setUnreadStatusesToReadState();
+	void requestFavoritedDone(bool isError);
+	void requestDestroyDone(bool isError);
 	
 protected slots:
     void optionsPreferences();
@@ -58,6 +60,7 @@ protected slots:
 	void postingNewStatusDone(bool isError);
 	void prepareReply(QString &userName, uint statusId);
 
+	void requestDestroy(uint statusId);
 	void notify(const QString &message);
 	
 	void checkNewStatusCharactersCount(int numOfChars);
@@ -76,6 +79,7 @@ protected slots:
 signals:
 	void sigSetUserImage(StatusWidget *widget);
 	void sigSetUnread(int unread);
+	void sigNotify( const QString &title, const QString &message, const QString &iconUrl);
 	
 protected:
 	void keyPressEvent(QKeyEvent * e);
@@ -126,6 +130,8 @@ private:
 	int unreadStatusCount;
 	short unreadStatusInHome;
 	short unreadStatusInReply;
+	
+	StatusWidget *toBeDestroied;
 };
 
 #endif 

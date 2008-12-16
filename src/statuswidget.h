@@ -17,7 +17,7 @@
 #include <ui_status_base.h>
 #include "datacontainers.h"
 #define UPDATEINTERVAL 2*60000
-#define COLOROFFSET -15
+#define COLOROFFSET 15
 /**
 Status Widget
 

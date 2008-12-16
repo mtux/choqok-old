@@ -57,7 +57,8 @@ void QuickTwit::slotPostNewStatusDone(bool isError)
 	if(!isError){
 		txtStatus->clearContentsAndSetDirection((Qt::LayoutDirection)Settings::direction());
 		emit sigStatusUpdated();
-		MainWindow::systemNotify("Success!", "New status posted successfully", APPNAME);
+		QString name(APPNAME);
+		emit sigNotify(i18n("Success!"), i18n("New status posted successfully"), name);
 	}
 	this->close();
 }

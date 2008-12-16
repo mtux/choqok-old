@@ -15,7 +15,7 @@
 #include <kstandardaction.h>
 
 #include <KDE/KLocale>
-
+#include <KMessageBox>
 #include <QProcess>
 #include <QTimer>
 #include <QKeyEvent>
@@ -38,6 +38,8 @@ MainWindow::MainWindow()
 	connect(twitter, SIGNAL(homeTimeLineRecived(QList< Status >&)), this, SLOT(homeTimeLinesRecived(QList< Status >&)));
 	connect(twitter, SIGNAL(replyTimeLineRecived(QList< Status >&)), this, SLOT(replyTimeLineRecived(QList< Status >&)));
 	connect(twitter, SIGNAL(sigPostNewStatusDone(bool)), this, SLOT(postingNewStatusDone(bool)));
+	connect(twitter, SIGNAL(sigFavoritedDone(bool)), this, SLOT(requestFavoritedDone(bool)));
+	connect(twitter, SIGNAL(sigDestroyDone(bool)), this, SLOT(requestDestroyDone(bool)));
     // tell the KXmlGuiWindow that this is indeed the main widget
 	mainWidget = new QWidget(this);
     ui.setupUi(mainWidget);
@@ -52,6 +54,7 @@ MainWindow::MainWindow()
 	ui.inputFrame->layout()->addWidget(txtNewStatus);
 	
 	setCentralWidget(mainWidget);
+	replyToStatusId = 0;
 
 	setupActions();
 	statusBar()->show();
@@ -150,8 +153,10 @@ void MainWindow::checkNewStatusCharactersCount(int numOfChars)
 void MainWindow::settingsChanged()
 {
 	kDebug();
-	if(currentUsername != Settings::username())
+	if(currentUsername != Settings::username()){
+		setUnreadStatusesToReadState();
 		reloadTimeLineLists();
+	}
 	setDefaultDirection();
 	timelineTimer->setInterval(Settings::updateInterval()*60000);
 	if(Settings::hideTwitField()){
@@ -169,19 +174,19 @@ void MainWindow::notify(const QString &message)
 	statusBar()->showMessage( message, TIMEOUT);
 }
 
-void MainWindow::systemNotify(const QString title, const QString message, QString iconUrl)
-{
-	switch(Settings::notifyType()){
-			case 0:
-				break;
-			case 1://KNotify
-				break;
-			case 2://Libnotify!
-				QString libnotifyCmd = QString("notify-send -t ") + QString::number(Settings::notifyInterval()*1000) + QString(" -u low -i "+ iconUrl +" \"") + title + QString("\" \"") + message + QString("\"");
-				QProcess::execute(libnotifyCmd);
-				break;
-		}
-}
+// void MainWindow::systemNotify(const QString title, const QString message, QString iconUrl)
+// {
+// 	switch(Settings::notifyType()){
+// 			case 0:
+// 				break;
+// 			case 1://KNotify
+// 				break;
+// 			case 2://Libnotify!
+// 				QString libnotifyCmd = QString("notify-send -t ") + QString::number(Settings::notifyInterval()*1000) + QString(" -u low -i "+ iconUrl +" \"") + title + QString("\" \"") + message + QString("\"");
+// 				QProcess::execute(libnotifyCmd);
+// 				break;
+// 		}
+// }
 
 void MainWindow::updateTimeLines()
 {
@@ -255,7 +260,7 @@ void MainWindow::addNewStatusesToUi(QList< Status > & statusList, QBoxLayout * l
 	
 	for(;it!=endIt; ++it){
 		if(!isStartMode && (type != Backend::HomeTimeLine || it->replyToUserScreenName!=Settings::username())){
-			MainWindow::systemNotify(it->user.screenName, it->content,
+			emit sigNotify(it->user.screenName, it->content,
 									 mediaMan->getImageLocalPathIfExist(it->user.profileImageUrl));
 		}
 		StatusWidget *wt = new StatusWidget(this);
@@ -263,6 +268,8 @@ void MainWindow::addNewStatusesToUi(QList< Status > & statusList, QBoxLayout * l
 		wt->setCurrentStatus(*it);
 		emit sigSetUserImage(wt);
 		connect(wt, SIGNAL(sigReply(QString&, uint)), this, SLOT(prepareReply(QString&, uint)));
+		connect(wt, SIGNAL(sigFavorite(uint, bool)), twitter, SLOT(requestFavorited(uint, bool)));
+		connect(wt, SIGNAL(sigDestroy(uint)), this, SLOT(requestDestroy(uint)));
 		list->append(wt);
 		layoutToAddStatuses->insertWidget(0, wt);
 		if(!isStartMode){
@@ -292,7 +299,7 @@ void MainWindow::setDefaultDirection()
 
 void MainWindow::error(QString & errMsg)
 {
-	MainWindow::systemNotify(i18n("Transaction faild"), errMsg, APPNAME);
+	emit sigNotify(i18n("Transaction faild"), errMsg, APPNAME);
 }
 
 void MainWindow::postStatus(QString & status)
@@ -306,7 +313,7 @@ void MainWindow::postStatus(QString & status)
 	}
 	statusBar()->showMessage(i18n("Posting New status..."));
 	txtNewStatus->setEnabled(false);
-	twitter->postNewStatus(status);
+	twitter->postNewStatus(status, replyToStatusId);
 }
 
 void MainWindow::postingNewStatusDone(bool isError)
@@ -315,7 +322,8 @@ void MainWindow::postingNewStatusDone(bool isError)
 		updateHomeTimeLine();
 		txtNewStatus->setText(QString());
 		txtNewStatus->clearContentsAndSetDirection((Qt::LayoutDirection)Settings::direction());
-		MainWindow::systemNotify("Success!", "New status posted successfully", APPNAME);
+		emit sigNotify(i18n("Success!"), i18n("New status posted successfully"), APPNAME);
+		replyToStatusId = 0;
 	} else {
 		error(twitter->latestErrorString());
 	}
@@ -507,6 +515,7 @@ void MainWindow::checkUnreadStatuses(int numOfNewStatusesReciened)
 
 void MainWindow::setUnreadStatusesToReadState()
 {
+	///FIXME Bug on changing account!
 	kDebug();
 	ui.tabs->setTabText(0, i18n("Home"));
 	ui.tabs->setTabText(1, i18n("Reply"));
@@ -524,6 +533,28 @@ bool MainWindow::queryClose()
 	kDebug();
 	setUnreadStatusesToReadState();
 	return true;
+}
+
+void MainWindow::requestFavoritedDone(bool isError)
+{
+	kDebug()<<"is Error: "<<isError;
+	notify("Done!");
+}
+
+void MainWindow::requestDestroyDone(bool isError)
+{
+	kDebug()<<"is Error: "<<isError;
+	notify("Done!");
+	toBeDestroied->close();
+}
+
+void MainWindow::requestDestroy(uint statusId)
+{
+	if(KMessageBox::warningYesNo(this, i18n("Are you sure of destroying this status?")) == KMessageBox::Yes){
+		twitter->requestDestroy(statusId);
+		toBeDestroied = qobject_cast<StatusWidget*>(sender());
+		setUnreadStatusesToReadState();
+	}
 }
 
 #include "mainwindow.moc"
