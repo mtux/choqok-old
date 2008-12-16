@@ -24,7 +24,7 @@ SysTrayIcon::SysTrayIcon(QWidget* parent): KSystemTrayIcon(parent)
 	
 	mainWin = new MainWindow;
 	
-	m_defaultIcon = KIcon("choqok").pixmap(48);
+	m_defaultIcon = KIcon("choqok").pixmap(22);
 	
 	setIcon(m_defaultIcon);
 	
