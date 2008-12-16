@@ -36,6 +36,7 @@ public:
 	
 	QDateTime dateFromString(const QString &date);
 	QString& latestErrorString();
+	void quiting();
 	
 public slots:
 // 	void updateTimeLines(TimeLineType type=All, int page=0);

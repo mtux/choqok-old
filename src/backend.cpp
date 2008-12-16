@@ -47,6 +47,7 @@ Backend::~Backend()
 {
 	kDebug();
 	logout();
+	quiting();
 }
 
 void Backend::postNewStatus(const QString & statusMessage, uint replyToStatusId)
@@ -57,9 +58,9 @@ void Backend::postNewStatus(const QString & statusMessage, uint replyToStatusId)
 	header.setRequest("POST", url.path());
 	header.setValue("Host", url.host());
 	header.setContentType("application/x-www-form-urlencoded");
-	header.setValue("X-Twitter-Client", "choqoK");
-	header.setValue("X-Twitter-Client-Version", "0.1");
-	header.setValue("X-Twitter-Client-URL", "http://github.com/mtux/choqok/wikis/home");
+// 	header.setValue("X-Twitter-Client", "choqoK");
+// 	header.setValue("X-Twitter-Client-Version", "0.1");
+// 	header.setValue("X-Twitter-Client-URL", "http://github.com/mtux/choqok/wikis/home");
 	
  	statusHttp.setHost(url.host(), url.port(80));
 	statusHttp.setUser(Settings::username(), Settings::password());
@@ -334,6 +335,15 @@ void Backend::requestDestroy(uint statusId)
 	QByteArray data = "source=choqok";
 	
 	destroyHttpNum = statusHttp.post(url.toString() , data);
+}
+
+void Backend::quiting()
+{
+	statusHttp.abort();
+	statusHttp.close();
+	
+	timelineHttp.abort();
+	timelineHttp.close();
 }
 
 

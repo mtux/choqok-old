@@ -29,7 +29,6 @@ StatusWidget::StatusWidget(QWidget *parent)
 	connect(btnRemove, SIGNAL(clicked(bool)), this, SLOT(requestDestroy()));
 }
 
-
 StatusWidget::~StatusWidget()
 {
 }
